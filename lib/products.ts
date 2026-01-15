@@ -14,7 +14,7 @@ export async function getCategories() {
 
 // Get featured products
 export async function getFeaturedProducts(limit = 8) {
-    return prisma.product.findMany({
+    const products = await prisma.product.findMany({
         where: {
             status: 'ACTIVE',
             featured: true
@@ -32,11 +32,20 @@ export async function getFeaturedProducts(limit = 8) {
         },
         take: limit
     });
+
+    return products.map(product => ({
+        ...product,
+        variants: product.variants.map(variant => ({
+            ...variant,
+            price: Number(variant.price),
+            salePrice: variant.salePrice ? Number(variant.salePrice) : null
+        }))
+    }));
 }
 
 // Get latest products
 export async function getLatestProducts(limit = 12) {
-    return prisma.product.findMany({
+    const products = await prisma.product.findMany({
         where: {
             status: 'ACTIVE'
         },
@@ -54,11 +63,20 @@ export async function getLatestProducts(limit = 12) {
         orderBy: { createdAt: 'desc' },
         take: limit
     });
+
+    return products.map(product => ({
+        ...product,
+        variants: product.variants.map(variant => ({
+            ...variant,
+            price: Number(variant.price),
+            salePrice: variant.salePrice ? Number(variant.salePrice) : null
+        }))
+    }));
 }
 
 // Get products by category
 export async function getProductsByCategory(categorySlug: string, limit = 20) {
-    return prisma.product.findMany({
+    const products = await prisma.product.findMany({
         where: {
             status: 'ACTIVE',
             category: {
@@ -79,11 +97,20 @@ export async function getProductsByCategory(categorySlug: string, limit = 20) {
         orderBy: { position: 'asc' },
         take: limit
     });
+
+    return products.map(product => ({
+        ...product,
+        variants: product.variants.map(variant => ({
+            ...variant,
+            price: Number(variant.price),
+            salePrice: variant.salePrice ? Number(variant.salePrice) : null
+        }))
+    }));
 }
 
 // Get single product by slug
 export async function getProductBySlug(slug: string) {
-    return prisma.product.findUnique({
+    const product = await prisma.product.findUnique({
         where: { slug },
         include: {
             category: true,
@@ -96,6 +123,17 @@ export async function getProductBySlug(slug: string) {
             attributes: true
         }
     });
+
+    if (!product) return null;
+
+    return {
+        ...product,
+        variants: product.variants.map(variant => ({
+            ...variant,
+            price: Number(variant.price),
+            salePrice: variant.salePrice ? Number(variant.salePrice) : null
+        }))
+    };
 }
 
 // Get all products with pagination
@@ -123,8 +161,17 @@ export async function getAllProducts(page = 1, limit = 20) {
         prisma.product.count({ where: { status: 'ACTIVE' } })
     ]);
 
+    const serializedProducts = products.map(product => ({
+        ...product,
+        variants: product.variants.map(variant => ({
+            ...variant,
+            price: Number(variant.price),
+            salePrice: variant.salePrice ? Number(variant.salePrice) : null
+        }))
+    }));
+
     return {
-        products,
+        products: serializedProducts,
         total,
         pages: Math.ceil(total / limit),
         currentPage: page
@@ -133,7 +180,7 @@ export async function getAllProducts(page = 1, limit = 20) {
 
 // Search products
 export async function searchProducts(query: string, limit = 20) {
-    return prisma.product.findMany({
+    const products = await prisma.product.findMany({
         where: {
             status: 'ACTIVE',
             OR: [
@@ -154,4 +201,13 @@ export async function searchProducts(query: string, limit = 20) {
         },
         take: limit
     });
+
+    return products.map(product => ({
+        ...product,
+        variants: product.variants.map(variant => ({
+            ...variant,
+            price: Number(variant.price),
+            salePrice: variant.salePrice ? Number(variant.salePrice) : null
+        }))
+    }));
 }
