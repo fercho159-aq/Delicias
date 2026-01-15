@@ -67,7 +67,7 @@ async function getRelatedProducts(categoryId: number | null, currentProductId: n
         }
     });
 
-    return related.map(p => ({
+    return related.map((p: any) => ({
         ...p,
         variants: p.variants.map((v: any) => ({
             ...v,
