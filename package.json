@@ -13,7 +13,8 @@
     "db:studio": "bunx prisma studio",
     "db:seed": "bun run scripts/seed-products.ts",
     "images:download": "bun run scripts/download-images.ts",
-    "images:rename": "bun run scripts/rename-images.ts"
+    "images:rename": "bun run scripts/rename-images.ts",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "5.22.0",
