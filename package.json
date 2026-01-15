@@ -6,10 +6,21 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:generate": "bunx prisma generate",
+    "db:push": "bunx prisma db push",
+    "db:migrate": "bunx prisma migrate dev",
+    "db:studio": "bunx prisma studio",
+    "db:seed": "bun run scripts/seed-products.ts",
+    "images:download": "bun run scripts/download-images.ts",
+    "images:rename": "bun run scripts/rename-images.ts"
   },
   "dependencies": {
+    "@prisma/client": "5.22.0",
+    "csv-parse": "^6.1.0",
+    "lucide-react": "^0.562.0",
     "next": "16.1.2",
+    "prisma": "5.22.0",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },
