@@ -81,9 +81,16 @@ const cmsContent = {
 
 export default async function Home() {
   // Fetch real data from database
+  // Fetch real data from database with error handling
   const [products, categories] = await Promise.all([
-    getLatestProducts(8),
-    getCategories(),
+    getLatestProducts(8).catch((err) => {
+      console.error('Failed to fetch products:', err);
+      return [];
+    }),
+    getCategories().catch((err) => {
+      console.error('Failed to fetch categories:', err);
+      return [];
+    }),
   ]);
 
   return (
