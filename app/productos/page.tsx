@@ -41,9 +41,9 @@ async function getProducts(categorySlug?: string) {
             ]
         });
 
-        return products.map(product => ({
+        return products.map((product: any) => ({
             ...product,
-            variants: product.variants.map(variant => ({
+            variants: product.variants.map((variant: any) => ({
                 ...variant,
                 price: Number(variant.price),
                 salePrice: variant.salePrice ? Number(variant.salePrice) : null
@@ -132,7 +132,7 @@ export default async function ProductosPage({ searchParams }: PageProps) {
                             <span className="count">{categories.reduce((acc, c) => acc + c._count.products, 0)}</span>
                         </Link>
 
-                        {categories.map(category => (
+                        {categories.map((category: any) => (
                             <Link
                                 key={category.id}
                                 href={`/productos?categoria=${category.slug}`}
@@ -149,7 +149,7 @@ export default async function ProductosPage({ searchParams }: PageProps) {
                 <main className="products-main">
                     {products.length > 0 ? (
                         <ProductGrid>
-                            {products.map(product => (
+                            {products.map((product: any) => (
                                 <ProductCard key={product.id} product={product} />
                             ))}
                         </ProductGrid>
