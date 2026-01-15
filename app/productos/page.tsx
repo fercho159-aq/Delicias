@@ -86,7 +86,7 @@ export default async function ProductosPage({ searchParams }: PageProps) {
     ]);
 
     const activeCategory = categorySlug
-        ? categories.find(c => c.slug === categorySlug)
+        ? categories.find((c: any) => c.slug === categorySlug)
         : null;
 
     return (
