@@ -38,7 +38,7 @@ async function getProduct(slug: string) {
     // Serialize Decimals to Numbers
     return {
         ...product,
-        variants: product.variants.map(v => ({
+        variants: product.variants.map((v: any) => ({
             ...v,
             price: Number(v.price),
             salePrice: v.salePrice ? Number(v.salePrice) : null
@@ -69,7 +69,7 @@ async function getRelatedProducts(categoryId: number | null, currentProductId: n
 
     return related.map(p => ({
         ...p,
-        variants: p.variants.map(v => ({
+        variants: p.variants.map((v: any) => ({
             ...v,
             price: Number(v.price),
             salePrice: v.salePrice ? Number(v.salePrice) : null
