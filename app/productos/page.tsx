@@ -129,7 +129,7 @@ export default async function ProductosPage({ searchParams }: PageProps) {
                             className={`category-link ${!categorySlug ? 'active' : ''}`}
                         >
                             Todos los Productos
-                            <span className="count">{categories.reduce((acc, c) => acc + c._count.products, 0)}</span>
+                            <span className="count">{categories.reduce((acc: number, c: any) => acc + c._count.products, 0)}</span>
                         </Link>
 
                         {categories.map((category: any) => (
