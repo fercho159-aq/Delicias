@@ -34,10 +34,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es-MX">
+    <html lang="es-MX" suppressHydrationWarning>
       <body
         className={`${inter.variable} ${outfit.variable} antialiased`}
         style={{ fontFamily: "var(--font-body)" }}
+        suppressHydrationWarning
       >
         <Header />
         <main>{children}</main>

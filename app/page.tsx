@@ -21,6 +21,7 @@ import {
 
 import { getLatestProducts, getCategories } from "@/lib/products";
 import { ProductCard, ProductGrid } from "@/components/ProductCard";
+import CategoriesCarousel from "@/components/CategoriesCarousel";
 import "./page.css";
 
 // Category icons mapping
@@ -149,26 +150,8 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Categories Quick Access */}
-      <section className="categories-section">
-        <div className="container">
-          <div className="categories-scroll">
-            {categories.map((category: { id: number; slug: string; name: string; _count: { products: number } }) => (
-              <Link
-                key={category.id}
-                href={`/categorias/${category.slug}`}
-                className="category-chip"
-              >
-                <span className="category-icon">
-                  {categoryIcons[category.slug] || <Leaf size={18} />}
-                </span>
-                <span className="category-name">{category.name}</span>
-                <span className="category-count">({category._count.products})</span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Categories Carousel */}
+      <CategoriesCarousel categories={categories} />
 
       {/* Benefits Section */}
       <section className="benefits-section">

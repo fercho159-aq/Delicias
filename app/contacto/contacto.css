@@ -1,0 +1,215 @@
+/* Estilos para la página de contacto */
+
+.contacto-page {
+    padding: 2rem 0 4rem;
+}
+
+.contacto-header {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.contacto-header h1 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: var(--color-primary-800);
+    margin-bottom: 1rem;
+}
+
+.contacto-header p {
+    font-size: 1.125rem;
+    color: var(--color-neutral-600);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.contacto-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+}
+
+/* Contact Info */
+.contacto-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.info-card {
+    background: white;
+    padding: 2rem;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.info-icon {
+    width: 56px;
+    height: 56px;
+    background: var(--color-primary-50);
+    color: var(--color-primary-600);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.info-content h3 {
+    font-size: 1.125rem;
+    color: var(--color-neutral-800);
+    margin-bottom: 0.5rem;
+}
+
+.info-content p {
+    color: var(--color-neutral-600);
+    font-size: 0.938rem;
+    line-height: 1.6;
+}
+
+.info-content a {
+    color: var(--color-primary-600);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.info-content a:hover {
+    color: var(--color-primary-700);
+}
+
+.whatsapp-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: #25D366;
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.3s ease, transform 0.2s ease;
+    margin-top: 1rem;
+}
+
+.whatsapp-cta:hover {
+    background: #128C7E;
+    transform: translateY(-2px);
+}
+
+.whatsapp-cta svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* Contact Form */
+.contacto-form-container {
+    background: white;
+    padding: 2.5rem;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+}
+
+.contacto-form-container h2 {
+    font-size: 1.5rem;
+    color: var(--color-neutral-800);
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-neutral-700);
+    margin-bottom: 0.5rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+    border: 2px solid var(--color-neutral-200);
+    border-radius: var(--radius-lg);
+    background: white;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--color-primary-500);
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
+}
+
+.form-group textarea {
+    min-height: 150px;
+    resize: vertical;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, var(--color-primary-500), var(--color-primary-600));
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.submit-btn:hover {
+    background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700));
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg), 0 0 20px rgba(34, 197, 94, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .contacto-grid {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+    }
+
+    .contacto-form-container {
+        order: -1;
+    }
+}
+
+@media (max-width: 640px) {
+    .contacto-page {
+        padding: 1rem 0 3rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .contacto-form-container {
+        padding: 1.5rem;
+    }
+}

@@ -2,26 +2,24 @@ import { prisma } from '@/lib/prisma';
 import { ProductCard, ProductGrid } from '@/components/ProductCard';
 import Link from 'next/link';
 import { Filter, ChevronRight } from 'lucide-react';
-import './productos.css';
+import './paquetes.css';
 
 export const metadata = {
-    title: 'Productos | Las Delicias del Campo',
-    description: 'Explora nuestra selección de nueces, semillas, frutos secos y más productos naturales de la más alta calidad.',
+    title: 'Paquetes | Las Delicias del Campo',
+    description: 'Explora nuestros paquetes especiales con la mejor selección de productos.',
 };
 
 // Re-validate every hour
 export const revalidate = 3600;
 
-async function getProducts(categorySlug?: string) {
+async function getProducts() {
     try {
         const products = await prisma.product.findMany({
             where: {
                 status: 'ACTIVE',
-                ...(categorySlug && {
-                    category: {
-                        slug: categorySlug
-                    }
-                })
+                category: {
+                    slug: 'paquetes'
+                }
             },
             include: {
                 category: true,
@@ -71,46 +69,25 @@ async function getCategories() {
     }
 }
 
-interface PageProps {
-    searchParams: Promise<{ categoria?: string }>;
-}
-
-export default async function ProductosPage({ searchParams }: PageProps) {
-    const params = await searchParams;
-    const categorySlug = params.categoria;
-
+export default async function PaquetesPage() {
     const [products, categories] = await Promise.all([
-        getProducts(categorySlug),
+        getProducts(),
         getCategories()
     ]);
 
-    const activeCategory = categorySlug
-        ? categories.find((c: any) => c.slug === categorySlug)
-        : null;
-
     return (
-        <div className="productos-page">
+        <div className="paquetes-page">
             {/* Breadcrumb */}
             <nav className="breadcrumb">
                 <Link href="/">Inicio</Link>
                 <ChevronRight size={14} />
-                <span>Productos</span>
-                {activeCategory && (
-                    <>
-                        <ChevronRight size={14} />
-                        <span>{activeCategory.name}</span>
-                    </>
-                )}
+                <span>Paquetes</span>
             </nav>
 
             <div className="page-header">
-                <h1>
-                    {activeCategory
-                        ? activeCategory.name
-                        : 'Todos los Productos'}
-                </h1>
+                <h1>Paquetes</h1>
                 <p className="products-count">
-                    {products.length} productos {activeCategory && `en ${activeCategory.name}`}
+                    {products.length} productos
                 </p>
             </div>
 
@@ -125,7 +102,7 @@ export default async function ProductosPage({ searchParams }: PageProps) {
                     <nav className="categories-nav">
                         <Link
                             href="/productos"
-                            className={`category-link ${!categorySlug ? 'active' : ''}`}
+                            className="category-link"
                         >
                             Todos los Productos
                             <span className="count">{categories.reduce((acc: number, c: any) => acc + c._count.products, 0)}</span>
@@ -135,7 +112,7 @@ export default async function ProductosPage({ searchParams }: PageProps) {
                             <Link
                                 key={category.id}
                                 href={`/productos?categoria=${category.slug}`}
-                                className={`category-link ${categorySlug === category.slug ? 'active' : ''}`}
+                                className={`category-link ${category.slug === 'paquetes' ? 'active' : ''}`}
                             >
                                 {category.name}
                                 <span className="count">{category._count.products}</span>
@@ -154,7 +131,7 @@ export default async function ProductosPage({ searchParams }: PageProps) {
                         </ProductGrid>
                     ) : (
                         <div className="no-products">
-                            <p>No se encontraron productos en esta categoría.</p>
+                            <p>No se encontraron paquetes disponibles.</p>
                             <Link href="/productos" className="btn btn-primary">
                                 Ver todos los productos
                             </Link>
@@ -162,8 +139,6 @@ export default async function ProductosPage({ searchParams }: PageProps) {
                     )}
                 </main>
             </div>
-
-
         </div>
     );
 }

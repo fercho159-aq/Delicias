@@ -2,26 +2,30 @@ import { prisma } from '@/lib/prisma';
 import { ProductCard, ProductGrid } from '@/components/ProductCard';
 import Link from 'next/link';
 import { Filter, ChevronRight } from 'lucide-react';
-import './productos.css';
+import '../../productos/productos.css'; // Reusing styles
 
-export const metadata = {
-    title: 'Productos | Las Delicias del Campo',
-    description: 'Explora nuestra selección de nueces, semillas, frutos secos y más productos naturales de la más alta calidad.',
-};
-
-// Re-validate every hour
 export const revalidate = 3600;
 
-async function getProducts(categorySlug?: string) {
+export async function generateMetadata({ params }: { params: Promise<{ category: string }> }) {
+    const { category } = await params;
+
+    // Capitalize first letter
+    const title = category.charAt(0).toUpperCase() + category.slice(1);
+
+    return {
+        title: `${title} | Las Delicias del Campo`,
+        description: `Explora nuestra selección de ${category}.`,
+    };
+}
+
+async function getProducts(categorySlug: string) {
     try {
         const products = await prisma.product.findMany({
             where: {
                 status: 'ACTIVE',
-                ...(categorySlug && {
-                    category: {
-                        slug: categorySlug
-                    }
-                })
+                category: {
+                    slug: categorySlug
+                }
             },
             include: {
                 category: true,
@@ -72,21 +76,19 @@ async function getCategories() {
 }
 
 interface PageProps {
-    searchParams: Promise<{ categoria?: string }>;
+    params: Promise<{ category: string }>;
 }
 
-export default async function ProductosPage({ searchParams }: PageProps) {
-    const params = await searchParams;
-    const categorySlug = params.categoria;
+export default async function CategoryPage({ params }: PageProps) {
+    const { category: categorySlug } = await params;
 
     const [products, categories] = await Promise.all([
         getProducts(categorySlug),
         getCategories()
     ]);
 
-    const activeCategory = categorySlug
-        ? categories.find((c: any) => c.slug === categorySlug)
-        : null;
+    const activeCategory = categories.find((c: any) => c.slug === categorySlug);
+    const categoryName = activeCategory ? activeCategory.name : categorySlug;
 
     return (
         <div className="productos-page">
@@ -94,23 +96,15 @@ export default async function ProductosPage({ searchParams }: PageProps) {
             <nav className="breadcrumb">
                 <Link href="/">Inicio</Link>
                 <ChevronRight size={14} />
-                <span>Productos</span>
-                {activeCategory && (
-                    <>
-                        <ChevronRight size={14} />
-                        <span>{activeCategory.name}</span>
-                    </>
-                )}
+                <Link href="/productos">Tienda</Link>
+                <ChevronRight size={14} />
+                <span>{categoryName}</span>
             </nav>
 
             <div className="page-header">
-                <h1>
-                    {activeCategory
-                        ? activeCategory.name
-                        : 'Todos los Productos'}
-                </h1>
+                <h1>{categoryName}</h1>
                 <p className="products-count">
-                    {products.length} productos {activeCategory && `en ${activeCategory.name}`}
+                    {products.length} productos
                 </p>
             </div>
 
@@ -125,7 +119,7 @@ export default async function ProductosPage({ searchParams }: PageProps) {
                     <nav className="categories-nav">
                         <Link
                             href="/productos"
-                            className={`category-link ${!categorySlug ? 'active' : ''}`}
+                            className="category-link"
                         >
                             Todos los Productos
                             <span className="count">{categories.reduce((acc: number, c: any) => acc + c._count.products, 0)}</span>
@@ -134,7 +128,7 @@ export default async function ProductosPage({ searchParams }: PageProps) {
                         {categories.map((category: any) => (
                             <Link
                                 key={category.id}
-                                href={`/productos?categoria=${category.slug}`}
+                                href={`/tienda/${category.slug}`}
                                 className={`category-link ${categorySlug === category.slug ? 'active' : ''}`}
                             >
                                 {category.name}
@@ -162,8 +156,6 @@ export default async function ProductosPage({ searchParams }: PageProps) {
                     )}
                 </main>
             </div>
-
-
         </div>
     );
 }

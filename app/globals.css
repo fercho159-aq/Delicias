@@ -95,13 +95,14 @@
 }
 
 /* Dark mode support */
-@media (prefers-color-scheme: dark) {
+/* Dark mode support removed per user request */
+/* @media (prefers-color-scheme: dark) {
   :root {
     --background: #1c1917;
     --background-secondary: #292524;
     --foreground: #fafafa;
   }
-}
+} */
 
 /* Reset and base styles */
 *,
@@ -115,8 +116,8 @@ html {
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
   font-family: var(--font-body);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -124,7 +125,12 @@ body {
 }
 
 /* Typography */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-heading);
   font-weight: 700;
   line-height: 1.2;
@@ -261,12 +267,10 @@ h3 {
 }
 
 .gradient-hero {
-  background: linear-gradient(
-    135deg,
-    var(--color-primary-50) 0%,
-    var(--color-secondary-50) 50%,
-    var(--background) 100%
-  );
+  background: linear-gradient(135deg,
+      var(--color-primary-50) 0%,
+      var(--color-secondary-50) 50%,
+      var(--background) 100%);
 }
 
 /* Text gradients */
@@ -295,6 +299,7 @@ h3 {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -305,6 +310,7 @@ h3 {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -316,6 +322,7 @@ h3 {
     opacity: 0;
     transform: translateX(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -327,6 +334,7 @@ h3 {
     opacity: 0;
     transform: translateX(20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -334,27 +342,36 @@ h3 {
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
 }
 
 @keyframes bounce {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-10px);
   }
 }
 
 @keyframes float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-8px);
   }
@@ -492,12 +509,10 @@ h3 {
 /* Dividers */
 .divider {
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--color-neutral-200),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      var(--color-neutral-200),
+      transparent);
   margin: 2rem 0;
 }
 
@@ -506,7 +521,7 @@ h3 {
   .section {
     padding: 3rem 0;
   }
-  
+
   .container {
     padding: 0 1rem;
   }

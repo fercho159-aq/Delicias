@@ -6,15 +6,12 @@ import { useState } from 'react';
 import './Header.css';
 
 const Header = () => {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isCatalogDropdownOpen, setIsCatalogDropdownOpen] = useState(false);
     const [cartCount] = useState(0);
 
-    const navLinks = [
-        { href: '/productos', label: 'Productos' },
-        { href: '/categorias', label: 'Categorías' },
-        { href: '/nosotros', label: 'Nosotros' },
-        { href: '/contacto', label: 'Contacto' },
-    ];
+
 
     return (
         <header className="header">
@@ -33,11 +30,61 @@ const Header = () => {
 
                 {/* Desktop Navigation */}
                 <nav className="nav-desktop">
-                    {navLinks.map((link) => (
-                        <Link key={link.href} href={link.href} className="nav-link">
-                            {link.label}
+                    <div
+                        className="nav-item-container"
+                        onMouseEnter={() => setIsDropdownOpen(true)}
+                        onMouseLeave={() => setIsDropdownOpen(false)}
+                    >
+                        <Link href="/tienda" className="nav-link">
+                            Tienda
+                            <svg className="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="m6 9 6 6 6-6" />
+                            </svg>
                         </Link>
-                    ))}
+
+                        {/* Dropdown Menu */}
+                        <div className={`nav-dropdown ${isDropdownOpen ? 'show' : ''}`}>
+                            <Link href="/tienda/cacahuates" className="dropdown-link">Cacahuates</Link>
+                            <Link href="/tienda/dulces" className="dropdown-link">Dulces</Link>
+                            <Link href="/tienda/frutos-secos" className="dropdown-link">Frutos Secos</Link>
+                            <Link href="/tienda/mixes" className="dropdown-link">Mixes</Link>
+                            <Link href="/tienda/nueces" className="dropdown-link">Nueces</Link>
+                            <Link href="/tienda/verduras" className="dropdown-link">Verduras Deshidratadas</Link>
+                            <Link href="/tienda/semillas" className="dropdown-link">Semillas</Link>
+                            <Link href="/tienda/regalos" className="dropdown-link">Cajas de Regalo</Link>
+                            <Link href="/tienda/paquetes" className="dropdown-link">Paquetes</Link>
+                            <Link href="/tienda/veganos" className="dropdown-link">Veganos</Link>
+                        </div>
+                    </div>
+
+                    <Link href="/paquetes" className="nav-link">
+                        Paquetes
+                    </Link>
+                    <Link href="/nosotros" className="nav-link">
+                        Nosotros
+                    </Link>
+
+                    <div
+                        className="nav-item-container"
+                        onMouseEnter={() => setIsCatalogDropdownOpen(true)}
+                        onMouseLeave={() => setIsCatalogDropdownOpen(false)}
+                    >
+                        <span className="nav-link" style={{ cursor: 'pointer' }}>
+                            Catálogo
+                            <svg className="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="m6 9 6 6 6-6" />
+                            </svg>
+                        </span>
+
+                        {/* Dropdown Menu */}
+                        <div className={`nav-dropdown ${isCatalogDropdownOpen ? 'show' : ''}`}>
+                            <a href="http://lasdeliciasdelcampo.com/wp-content/uploads/2025/03/Paquetes-Las-Delicias-del-Campo.pdf" target="_blank" rel="noopener noreferrer" className="dropdown-link">Paquetes</a>
+                            <a href="http://lasdeliciasdelcampo.com/wp-content/uploads/2025/12/botana-saludable.pdf" target="_blank" rel="noopener noreferrer" className="dropdown-link">Productos</a>
+                        </div>
+                    </div>
+                    <Link href="/contacto" className="nav-link">
+                        Contacto
+                    </Link>
                 </nav>
 
                 {/* Actions */}
@@ -76,11 +123,11 @@ const Header = () => {
                     {/* Mobile menu button */}
                     <button
                         className="mobile-menu-btn"
-                        onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}
-                        aria-expanded={isMenuOpen}
+                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                        aria-label={isMobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
+                        aria-expanded={isMobileMenuOpen}
                     >
-                        {isMenuOpen ? (
+                        {isMobileMenuOpen ? (
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <line x1="18" y1="6" x2="6" y2="18" />
                                 <line x1="6" y1="6" x2="18" y2="18" />
@@ -97,17 +144,31 @@ const Header = () => {
             </div>
 
             {/* Mobile Navigation */}
-            <nav className={`nav-mobile ${isMenuOpen ? 'open' : ''}`}>
-                {navLinks.map((link) => (
-                    <Link
-                        key={link.href}
-                        href={link.href}
-                        className="nav-link-mobile"
-                        onClick={() => setIsMenuOpen(false)}
-                    >
-                        {link.label}
-                    </Link>
-                ))}
+            <nav className={`nav-mobile ${isMobileMenuOpen ? 'open' : ''}`}>
+                <div className="nav-mobile-group">
+                    <span className="nav-mobile-title">Tienda</span>
+                    <Link href="/tienda/cacahuates" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Cacahuates</Link>
+                    <Link href="/tienda/dulces" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Dulces</Link>
+                    <Link href="/tienda/frutos-secos" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Frutos Secos</Link>
+                    <Link href="/tienda/mixes" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Mixes</Link>
+                    <Link href="/tienda/nueces" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Nueces</Link>
+                    <Link href="/tienda/verduras" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Verduras</Link>
+                    <Link href="/tienda/semillas" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Semillas</Link>
+                    <Link href="/tienda/regalos" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Cajas de Regalo</Link>
+                    <Link href="/tienda/paquetes" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Paquetes</Link>
+                    <Link href="/tienda/veganos" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Veganos</Link>
+                </div>
+
+                <Link href="/paquetes" className="nav-link-mobile" onClick={() => setIsMobileMenuOpen(false)}>Paquetes</Link>
+                <Link href="/nosotros" className="nav-link-mobile" onClick={() => setIsMobileMenuOpen(false)}>Nosotros</Link>
+
+                <div className="nav-mobile-group">
+                    <span className="nav-mobile-title">Catálogo</span>
+                    <a href="http://lasdeliciasdelcampo.com/wp-content/uploads/2025/03/Paquetes-Las-Delicias-del-Campo.pdf" target="_blank" rel="noopener noreferrer" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Paquetes (PDF)</a>
+                    <a href="http://lasdeliciasdelcampo.com/wp-content/uploads/2025/12/botana-saludable.pdf" target="_blank" rel="noopener noreferrer" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Productos (PDF)</a>
+                </div>
+
+                <Link href="/contacto" className="nav-link-mobile" onClick={() => setIsMobileMenuOpen(false)}>Contacto</Link>
                 <a
                     href="https://wa.me/5215519915154"
                     target="_blank"
