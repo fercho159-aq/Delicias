@@ -146,7 +146,7 @@ export default async function Home() {
       <section className="categories-section">
         <div className="container">
           <div className="categories-scroll">
-            {categories.map((category) => (
+            {categories.map((category: { id: number; slug: string; name: string; _count: { products: number } }) => (
               <Link
                 key={category.id}
                 href={`/categorias/${category.slug}`}
