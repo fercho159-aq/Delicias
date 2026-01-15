@@ -239,7 +239,7 @@ export default async function Home() {
 
           {products.length > 0 ? (
             <ProductGrid>
-              {products.map((product) => (
+              {products.map((product: any) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </ProductGrid>
