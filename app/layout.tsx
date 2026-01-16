@@ -3,6 +3,9 @@ import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { CartProvider } from "@/lib/CartContext";
+import { UserProvider } from "@/lib/UserContext";
+import CartDrawer from "@/components/CartDrawer";
 
 const inter = Inter({
   variable: "--font-body",
@@ -40,9 +43,14 @@ export default function RootLayout({
         style={{ fontFamily: "var(--font-body)" }}
         suppressHydrationWarning
       >
-        <Header />
-        <main>{children}</main>
-        <Footer />
+        <UserProvider>
+          <CartProvider>
+            <Header />
+            <main>{children}</main>
+            <Footer />
+            <CartDrawer />
+          </CartProvider>
+        </UserProvider>
       </body>
     </html>
   );

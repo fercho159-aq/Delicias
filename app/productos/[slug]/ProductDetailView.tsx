@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ShoppingCart, Minus, Plus, Check } from 'lucide-react';
 import { ProductCard } from '@/components/ProductCard';
+import { useCart } from '@/lib/CartContext';
 import './product-detail.css';
 
 interface ProductVariant {
@@ -25,6 +26,7 @@ interface ProductDetailProps {
     product: {
         id: number;
         name: string;
+        slug: string;
         description: string | null;
         sku: string | null;
         category: { name: string; slug: string } | null;
@@ -53,6 +55,72 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
             setQuantity(newQty);
         }
     };
+
+    // AddToCartSection inline component
+    function AddToCartSection({ productId, productName, productSlug, variantId, variantName, price, image, maxStock, inStock }: {
+        productId: number;
+        productName: string;
+        productSlug: string;
+        variantId: number;
+        variantName: string;
+        price: number;
+        image: string | null;
+        maxStock: number;
+        inStock: boolean;
+    }) {
+        const { addItem } = useCart();
+        const [isAdded, setIsAdded] = useState(false);
+
+        const handleAddToCart = () => {
+            if (!inStock) return;
+            addItem({
+                variantId,
+                productId,
+                productName,
+                productSlug,
+                variantName,
+                price,
+                quantity,
+                image,
+                maxStock
+            });
+            setIsAdded(true);
+            setTimeout(() => setIsAdded(false), 2000);
+        };
+
+        return (
+            <div className="add-to-cart-block">
+                <div className="quantity-selector">
+                    <button className="qty-btn" onClick={() => handleQuantityChange(-1)} disabled={quantity <= 1}>
+                        <Minus size={18} />
+                    </button>
+                    <input
+                        type="text"
+                        className="qty-input"
+                        value={quantity}
+                        readOnly
+                    />
+                    <button className="qty-btn" onClick={() => handleQuantityChange(1)} disabled={quantity >= maxStock}>
+                        <Plus size={18} />
+                    </button>
+                </div>
+
+                <button
+                    className={`add-btn ${isAdded ? 'added' : ''}`}
+                    onClick={handleAddToCart}
+                    disabled={!inStock}
+                >
+                    {isAdded ? (
+                        <><Check size={20} /> ¡Agregado!</>
+                    ) : !inStock ? (
+                        'Agotado'
+                    ) : (
+                        <><ShoppingCart size={20} /> Agregar al Carrito</>
+                    )}
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div className="product-detail-container">
@@ -149,27 +217,17 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
                     )}
 
                     {/* Acciones de Compra */}
-                    <div className="add-to-cart-block">
-                        <div className="quantity-selector">
-                            <button className="qty-btn" onClick={() => handleQuantityChange(-1)} disabled={quantity <= 1}>
-                                <Minus size={18} />
-                            </button>
-                            <input
-                                type="text"
-                                className="qty-input"
-                                value={quantity}
-                                readOnly
-                            />
-                            <button className="qty-btn" onClick={() => handleQuantityChange(1)}>
-                                <Plus size={18} />
-                            </button>
-                        </div>
-
-                        <button className="add-btn">
-                            <ShoppingCart size={20} />
-                            Agregar al Carrito
-                        </button>
-                    </div>
+                    <AddToCartSection
+                        productId={product.id}
+                        productName={product.name}
+                        productSlug={product.slug}
+                        variantId={activeVariant?.id || 0}
+                        variantName={activeVariant?.weight || ''}
+                        price={hasDiscount ? salePrice! : price}
+                        image={images[0]?.url || null}
+                        maxStock={activeVariant?.stock || 100}
+                        inStock={activeVariant?.inStock || false}
+                    />
                 </div>
             </div>
 

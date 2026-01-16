@@ -275,10 +275,20 @@
     transition: all 0.2s;
 }
 
-.add-btn:hover {
+.add-btn:hover:not(:disabled) {
     background: #000;
     transform: translateY(-2px);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.add-btn.added {
+    background: var(--color-primary-500, #22c55e);
+}
+
+.add-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
 }
 
 /* Related Products */

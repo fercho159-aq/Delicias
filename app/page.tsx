@@ -5,13 +5,6 @@ import {
   ShieldCheck,
   PiggyBank,
   MessageCircle,
-  Leaf,
-  Sun,
-  Cherry,
-  Flame,
-  Candy,
-  Salad,
-  Carrot,
   Gift,
   ChevronRight,
   Star,
@@ -26,16 +19,7 @@ import "./page.css";
 
 // Category icons mapping
 const categoryIcons: Record<string, React.ReactNode> = {
-  'nueces': <Leaf size={18} strokeWidth={1.5} />,
-  'semillas': <Sun size={18} strokeWidth={1.5} />,
-  'frutos-secos': <Cherry size={18} strokeWidth={1.5} />,
-  'cacahuates': <Flame size={18} strokeWidth={1.5} />,
-  'dulces': <Candy size={18} strokeWidth={1.5} />,
-  'mixes': <Salad size={18} strokeWidth={1.5} />,
-  'verduras-deshidratadas': <Carrot size={18} strokeWidth={1.5} />,
   'cajas-de-regalo': <Gift size={18} strokeWidth={1.5} />,
-  'veganos': <Leaf size={18} strokeWidth={1.5} />,
-  'chocolates': <Candy size={18} strokeWidth={1.5} />,
   'canasta': <Gift size={18} strokeWidth={1.5} />,
   'paquetes': <Package size={18} strokeWidth={1.5} />,
 };
@@ -110,7 +94,7 @@ export default async function Home() {
         </div>
         <div className="container hero-content">
           <div className="hero-badge">
-            <Leaf size={16} />
+            <Gift size={16} />
             <span>Del Campo a tu Mesa</span>
           </div>
           <h1 className="hero-title">

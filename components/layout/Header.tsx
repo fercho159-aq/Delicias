@@ -3,13 +3,16 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
+import { useCart } from '@/lib/CartContext';
+import { useUser } from '@/lib/UserContext';
 import './Header.css';
 
 const Header = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isCatalogDropdownOpen, setIsCatalogDropdownOpen] = useState(false);
-    const [cartCount] = useState(0);
+    const { itemCount, openCart } = useCart();
+    const { user } = useUser();
 
 
 
@@ -44,16 +47,9 @@ const Header = () => {
 
                         {/* Dropdown Menu */}
                         <div className={`nav-dropdown ${isDropdownOpen ? 'show' : ''}`}>
-                            <Link href="/tienda/cacahuates" className="dropdown-link">Cacahuates</Link>
-                            <Link href="/tienda/dulces" className="dropdown-link">Dulces</Link>
-                            <Link href="/tienda/frutos-secos" className="dropdown-link">Frutos Secos</Link>
-                            <Link href="/tienda/mixes" className="dropdown-link">Mixes</Link>
-                            <Link href="/tienda/nueces" className="dropdown-link">Nueces</Link>
-                            <Link href="/tienda/verduras" className="dropdown-link">Verduras Deshidratadas</Link>
-                            <Link href="/tienda/semillas" className="dropdown-link">Semillas</Link>
-                            <Link href="/tienda/regalos" className="dropdown-link">Cajas de Regalo</Link>
+                            <Link href="/tienda/cajas-de-regalo" className="dropdown-link">Cajas de Regalo</Link>
                             <Link href="/tienda/paquetes" className="dropdown-link">Paquetes</Link>
-                            <Link href="/tienda/veganos" className="dropdown-link">Veganos</Link>
+                            <Link href="/tienda/canasta" className="dropdown-link">Canastas</Link>
                         </div>
                     </div>
 
@@ -62,6 +58,9 @@ const Header = () => {
                     </Link>
                     <Link href="/nosotros" className="nav-link">
                         Nosotros
+                    </Link>
+                    <Link href="/membresias" className="nav-link" style={{ color: '#22c55e', fontWeight: 600 }}>
+                        Membresías
                     </Link>
 
                     <div
@@ -97,15 +96,24 @@ const Header = () => {
                         </svg>
                     </button>
 
+                    {/* User Profile */}
+                    <Link href="/perfil" className={`header-action-btn user-btn ${user ? 'logged-in' : ''}`} aria-label="Mi perfil">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
+                        </svg>
+                        {user && <span className="user-badge" />}
+                    </Link>
+
                     {/* Cart */}
-                    <Link href="/carrito" className="header-action-btn cart-btn" aria-label="Carrito">
+                    <button onClick={openCart} className="header-action-btn cart-btn" aria-label="Carrito">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <circle cx="8" cy="21" r="1" />
                             <circle cx="19" cy="21" r="1" />
                             <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
                         </svg>
-                        {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
-                    </Link>
+                        {itemCount > 0 && <span className="cart-badge">{itemCount}</span>}
+                    </button>
 
                     {/* WhatsApp */}
                     <a
@@ -147,16 +155,9 @@ const Header = () => {
             <nav className={`nav-mobile ${isMobileMenuOpen ? 'open' : ''}`}>
                 <div className="nav-mobile-group">
                     <span className="nav-mobile-title">Tienda</span>
-                    <Link href="/tienda/cacahuates" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Cacahuates</Link>
-                    <Link href="/tienda/dulces" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Dulces</Link>
-                    <Link href="/tienda/frutos-secos" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Frutos Secos</Link>
-                    <Link href="/tienda/mixes" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Mixes</Link>
-                    <Link href="/tienda/nueces" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Nueces</Link>
-                    <Link href="/tienda/verduras" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Verduras</Link>
-                    <Link href="/tienda/semillas" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Semillas</Link>
-                    <Link href="/tienda/regalos" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Cajas de Regalo</Link>
+                    <Link href="/tienda/cajas-de-regalo" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Cajas de Regalo</Link>
                     <Link href="/tienda/paquetes" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Paquetes</Link>
-                    <Link href="/tienda/veganos" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Veganos</Link>
+                    <Link href="/tienda/canasta" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Canastas</Link>
                 </div>
 
                 <Link href="/paquetes" className="nav-link-mobile" onClick={() => setIsMobileMenuOpen(false)}>Paquetes</Link>
@@ -169,6 +170,7 @@ const Header = () => {
                 </div>
 
                 <Link href="/contacto" className="nav-link-mobile" onClick={() => setIsMobileMenuOpen(false)}>Contacto</Link>
+                <Link href="/membresias" className="nav-link-mobile" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#22c55e', fontWeight: 600 }}>Membresías</Link>
                 <a
                     href="https://wa.me/5215519915154"
                     target="_blank"

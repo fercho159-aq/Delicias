@@ -125,6 +125,26 @@
     }
 }
 
+/* User Button */
+.user-btn {
+    position: relative;
+}
+
+.user-btn.logged-in {
+    color: var(--color-primary-600);
+}
+
+.user-badge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 8px;
+    height: 8px;
+    background: var(--color-primary-500);
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
 .mobile-menu-btn {
     width: 40px;
     height: 40px;
@@ -203,6 +223,7 @@
 .nav-whatsapp-btn:hover {
     background: #128C7E;
 }
+
 /* Dropdown Menu Styles */
 .nav-item-container {
     position: relative;
@@ -240,7 +261,7 @@
     visibility: hidden;
     transform: translateY(10px);
     transition: all 0.2s ease;
-    border: 1px solid rgba(0,0,0,0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
     z-index: 50;
 }
 
