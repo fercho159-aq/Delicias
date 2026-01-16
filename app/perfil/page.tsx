@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useUser } from '@/lib/UserContext';
 import {
     User,
@@ -15,31 +16,89 @@ import {
     Check,
     ChevronRight,
     ShoppingBag,
-    Edit
+    Mail,
+    Lock,
+    Shield
 } from 'lucide-react';
 import './perfil.css';
 
 export default function PerfilPage() {
-    const { user, logout } = useUser();
+    const router = useRouter();
+    const { user, login, logout } = useUser();
     const [activeTab, setActiveTab] = useState<'orders' | 'profile'>('orders');
 
-    if (!user) {
-        return (
-            <div className="perfil-page">
-                <div className="container">
-                    <div className="perfil-empty">
-                        <User size={64} strokeWidth={1} />
-                        <h1>No has iniciado sesión</h1>
-                        <p>Para ver tu perfil y pedidos, primero realiza una compra.</p>
-                        <Link href="/tienda" className="btn-primary">
-                            <ShoppingBag size={18} />
-                            Ir a la tienda
-                        </Link>
-                    </div>
-                </div>
-            </div>
+    // Login form states
+    const [isLoggingIn, setIsLoggingIn] = useState(false);
+    const [loginForm, setLoginForm] = useState({
+        email: '',
+        password: '',
+        firstName: '',
+        lastName: '',
+        phone: ''
+    });
+    const [loginMode, setLoginMode] = useState<'user' | 'admin'>('user');
+    const [loginError, setLoginError] = useState('');
+    const [showRegister, setShowRegister] = useState(false);
+
+    const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setLoginForm(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleUserLogin = () => {
+        if (!loginForm.email) {
+            setLoginError('Ingresa tu email');
+            return;
+        }
+
+        if (showRegister && (!loginForm.firstName || !loginForm.lastName)) {
+            setLoginError('Completa todos los campos');
+            return;
+        }
+
+        // For user login, we just create/update the user profile
+        login(
+            loginForm.email,
+            loginForm.firstName || 'Usuario',
+            loginForm.lastName || '',
+            loginForm.phone || ''
         );
-    }
+        setLoginError('');
+    };
+
+    const handleAdminLogin = async () => {
+        if (!loginForm.email || !loginForm.password) {
+            setLoginError('Ingresa email y contraseña');
+            return;
+        }
+
+        setIsLoggingIn(true);
+        setLoginError('');
+
+        try {
+            const res = await fetch('/api/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: loginForm.email,
+                    password: loginForm.password
+                }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.error || 'Error al iniciar sesión');
+            }
+
+            router.push('/admin');
+            router.refresh();
+        } catch (err: any) {
+            setLoginError(err.message);
+        } finally {
+            setIsLoggingIn(false);
+        }
+    };
 
     const getStatusIcon = (status: string) => {
         switch (status) {
@@ -70,6 +129,170 @@ export default function PerfilPage() {
             default: return '';
         }
     };
+
+    // Login/Register Form
+    if (!user) {
+        return (
+            <div className="perfil-page">
+                <div className="container">
+                    <div className="login-container">
+                        <div className="login-card">
+                            {/* Tab Selector */}
+                            <div className="login-tabs">
+                                <button
+                                    className={`login-tab ${loginMode === 'user' ? 'active' : ''}`}
+                                    onClick={() => { setLoginMode('user'); setLoginError(''); }}
+                                >
+                                    <User size={18} />
+                                    Usuario
+                                </button>
+                                <button
+                                    className={`login-tab ${loginMode === 'admin' ? 'active' : ''}`}
+                                    onClick={() => { setLoginMode('admin'); setLoginError(''); }}
+                                >
+                                    <Shield size={18} />
+                                    Administrador
+                                </button>
+                            </div>
+
+                            <div className="login-header">
+                                <h1>{loginMode === 'admin' ? 'Panel de Administración' : (showRegister ? 'Crear Cuenta' : 'Iniciar Sesión')}</h1>
+                                <p>
+                                    {loginMode === 'admin'
+                                        ? 'Ingresa tus credenciales de administrador'
+                                        : (showRegister ? 'Completa tus datos para crear una cuenta' : 'Ingresa tu email para continuar')
+                                    }
+                                </p>
+                            </div>
+
+                            {loginError && (
+                                <div className="login-error">
+                                    {loginError}
+                                </div>
+                            )}
+
+                            <form onSubmit={(e) => { e.preventDefault(); loginMode === 'admin' ? handleAdminLogin() : handleUserLogin(); }}>
+                                <div className="form-group">
+                                    <label htmlFor="email">
+                                        <Mail size={16} />
+                                        Email
+                                    </label>
+                                    <input
+                                        type="email"
+                                        id="email"
+                                        name="email"
+                                        value={loginForm.email}
+                                        onChange={handleLoginChange}
+                                        placeholder="tu@email.com"
+                                        required
+                                    />
+                                </div>
+
+                                {loginMode === 'admin' && (
+                                    <div className="form-group">
+                                        <label htmlFor="password">
+                                            <Lock size={16} />
+                                            Contraseña
+                                        </label>
+                                        <input
+                                            type="password"
+                                            id="password"
+                                            name="password"
+                                            value={loginForm.password}
+                                            onChange={handleLoginChange}
+                                            placeholder="••••••••"
+                                            required
+                                        />
+                                    </div>
+                                )}
+
+                                {loginMode === 'user' && showRegister && (
+                                    <>
+                                        <div className="form-row">
+                                            <div className="form-group">
+                                                <label htmlFor="firstName">Nombre</label>
+                                                <input
+                                                    type="text"
+                                                    id="firstName"
+                                                    name="firstName"
+                                                    value={loginForm.firstName}
+                                                    onChange={handleLoginChange}
+                                                    placeholder="Juan"
+                                                    required
+                                                />
+                                            </div>
+                                            <div className="form-group">
+                                                <label htmlFor="lastName">Apellido</label>
+                                                <input
+                                                    type="text"
+                                                    id="lastName"
+                                                    name="lastName"
+                                                    value={loginForm.lastName}
+                                                    onChange={handleLoginChange}
+                                                    placeholder="Pérez"
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="form-group">
+                                            <label htmlFor="phone">Teléfono (opcional)</label>
+                                            <input
+                                                type="tel"
+                                                id="phone"
+                                                name="phone"
+                                                value={loginForm.phone}
+                                                onChange={handleLoginChange}
+                                                placeholder="55 1234 5678"
+                                            />
+                                        </div>
+                                    </>
+                                )}
+
+                                <button
+                                    type="submit"
+                                    className="login-btn"
+                                    disabled={isLoggingIn}
+                                >
+                                    {isLoggingIn ? 'Iniciando sesión...' : (
+                                        loginMode === 'admin' ? 'Acceder al Panel' : (showRegister ? 'Crear Cuenta' : 'Continuar')
+                                    )}
+                                </button>
+                            </form>
+
+                            {loginMode === 'user' && (
+                                <div className="login-footer">
+                                    <button
+                                        className="login-toggle"
+                                        onClick={() => setShowRegister(!showRegister)}
+                                    >
+                                        {showRegister ? '¿Ya tienes cuenta? Inicia sesión' : '¿Primera vez? Crea una cuenta'}
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="login-info">
+                            <h3>Beneficios de tu cuenta</h3>
+                            <ul>
+                                <li>
+                                    <Package size={18} />
+                                    Historial de pedidos
+                                </li>
+                                <li>
+                                    <Truck size={18} />
+                                    Seguimiento de envíos
+                                </li>
+                                <li>
+                                    <CheckCircle size={18} />
+                                    Checkout más rápido
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="perfil-page">
@@ -207,7 +430,7 @@ export default function PerfilPage() {
                                             </div>
                                             <div className="field">
                                                 <label>Teléfono</label>
-                                                <span>{user.phone}</span>
+                                                <span>{user.phone || 'No especificado'}</span>
                                             </div>
                                             <div className="field">
                                                 <label>Miembro desde</label>
