@@ -277,6 +277,11 @@
     color: #16a34a;
 }
 
+.payment-icon.mercadopago {
+    background: #e0f2fe;
+    color: #009ee3;
+}
+
 .payment-icon.transfer {
     background: #dbeafe;
     color: #2563eb;

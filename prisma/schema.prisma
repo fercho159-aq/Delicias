@@ -149,6 +149,8 @@ model Order {
   status          OrderStatus   @default(PENDING)
   paymentStatus   PaymentStatus @default(PENDING)
   paymentMethod   String?
+  mpPreferenceId  String?
+  mpPaymentId     String?
   subtotal        Decimal       @db.Decimal(10, 2)
   shippingCost    Decimal       @default(0) @db.Decimal(10, 2)
   discount        Decimal       @default(0) @db.Decimal(10, 2)

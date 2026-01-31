@@ -27,7 +27,7 @@ interface CheckoutFormData {
     state: string;
     zipCode: string;
     notes: string;
-    paymentMethod: 'card' | 'transfer' | 'whatsapp';
+    paymentMethod: 'mercadopago' | 'transfer' | 'whatsapp';
 }
 
 export default function CheckoutPage() {
@@ -98,51 +98,99 @@ export default function CheckoutPage() {
     const handleSubmit = async () => {
         setIsSubmitting(true);
 
-        const orderId = generateOrderNumber();
-        setOrderNumber(orderId);
+        try {
+            if (formData.paymentMethod === 'mercadopago') {
+                // Mercado Pago flow: create order in DB + redirect to MP
+                const response = await fetch('/api/checkout/create-preference', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        items: items.map(item => ({
+                            variantId: item.variantId,
+                            productName: item.productName,
+                            variantName: item.variantName,
+                            price: item.price,
+                            quantity: item.quantity,
+                            image: item.image,
+                        })),
+                        customer: {
+                            email: formData.email,
+                            firstName: formData.firstName,
+                            lastName: formData.lastName,
+                            phone: formData.phone,
+                        },
+                        shipping: {
+                            address: formData.address,
+                            city: formData.city,
+                            state: formData.state,
+                            zipCode: formData.zipCode,
+                        },
+                        notes: formData.notes,
+                        subtotal,
+                        shippingCost: shipping,
+                        total,
+                    }),
+                });
 
-        // Create order object
-        const newOrder: UserOrder = {
-            id: orderId,
-            date: new Date().toISOString(),
-            status: 'pending',
-            items: items.map(item => ({
-                productName: item.productName,
-                variantName: item.variantName,
-                quantity: item.quantity,
-                price: item.price,
-                image: item.image
-            })),
-            shipping,
-            total,
-            shippingAddress: {
-                address: formData.address,
-                city: formData.city,
-                state: formData.state,
-                zipCode: formData.zipCode
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Error al procesar el pago');
+                }
+
+                // Redirect to Mercado Pago
+                window.location.href = data.initPoint || data.sandboxInitPoint;
+                return;
+
+            } else {
+                // WhatsApp / Transfer flow (existing logic)
+                const orderId = generateOrderNumber();
+                setOrderNumber(orderId);
+
+                const newOrder: UserOrder = {
+                    id: orderId,
+                    date: new Date().toISOString(),
+                    status: 'pending',
+                    items: items.map(item => ({
+                        productName: item.productName,
+                        variantName: item.variantName,
+                        quantity: item.quantity,
+                        price: item.price,
+                        image: item.image
+                    })),
+                    shipping,
+                    total,
+                    shippingAddress: {
+                        address: formData.address,
+                        city: formData.city,
+                        state: formData.state,
+                        zipCode: formData.zipCode
+                    }
+                };
+
+                login(formData.email, formData.firstName, formData.lastName, formData.phone);
+
+                setTimeout(() => {
+                    addOrder(newOrder);
+                }, 100);
+
+                if (formData.paymentMethod === 'whatsapp') {
+                    const message = generateWhatsAppMessage(orderId);
+                    const whatsappUrl = `https://wa.me/5215519915154?text=${message}`;
+                    window.open(whatsappUrl, '_blank');
+                }
+
+                setTimeout(() => {
+                    clearCart();
+                    setOrderComplete(true);
+                    setIsSubmitting(false);
+                }, 1000);
             }
-        };
-
-        // Login/create user and add order
-        login(formData.email, formData.firstName, formData.lastName, formData.phone);
-
-        // Need to wait a bit for login to complete before adding order
-        setTimeout(() => {
-            addOrder(newOrder);
-        }, 100);
-
-        if (formData.paymentMethod === 'whatsapp') {
-            const message = generateWhatsAppMessage(orderId);
-            const whatsappUrl = `https://wa.me/5215519915154?text=${message}`;
-            window.open(whatsappUrl, '_blank');
-        }
-
-        // Clear cart and show success
-        setTimeout(() => {
-            clearCart();
-            setOrderComplete(true);
+        } catch (error: any) {
+            console.error('Checkout error:', error);
+            alert(error.message || 'Hubo un error al procesar tu pedido');
             setIsSubmitting(false);
-        }, 1000);
+        }
     };
 
     if (items.length === 0 && !orderComplete) {
@@ -391,6 +439,23 @@ export default function CheckoutPage() {
                                 <h2>Método de Pago</h2>
 
                                 <div className="payment-methods">
+                                    <label className={`payment-option ${formData.paymentMethod === 'mercadopago' ? 'selected' : ''}`}>
+                                        <input
+                                            type="radio"
+                                            name="paymentMethod"
+                                            value="mercadopago"
+                                            checked={formData.paymentMethod === 'mercadopago'}
+                                            onChange={handleInputChange}
+                                        />
+                                        <div className="payment-icon mercadopago">
+                                            <CreditCard size={24} />
+                                        </div>
+                                        <div className="payment-info">
+                                            <span className="payment-name">Mercado Pago</span>
+                                            <span className="payment-desc">Tarjeta, transferencia o efectivo</span>
+                                        </div>
+                                    </label>
+
                                     <label className={`payment-option ${formData.paymentMethod === 'whatsapp' ? 'selected' : ''}`}>
                                         <input
                                             type="radio"
@@ -449,7 +514,12 @@ export default function CheckoutPage() {
                                         onClick={handleSubmit}
                                         disabled={isSubmitting}
                                     >
-                                        {isSubmitting ? 'Procesando...' : 'Confirmar Pedido'}
+                                        {isSubmitting
+                                            ? 'Procesando...'
+                                            : formData.paymentMethod === 'mercadopago'
+                                                ? 'Pagar con Mercado Pago'
+                                                : 'Confirmar Pedido'
+                                        }
                                     </button>
                                 </div>
                             </div>
