@@ -1,12 +1,67 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { payment as mpPayment } from '@/lib/mercadopago';
+import { payment as mpPayment, getMPSubscription } from '@/lib/mercadopago';
 
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
 
-        // Only process payment notifications
+        // Handle subscription preapproval notifications
+        if (body.type === 'subscription_preapproval') {
+            const preapprovalId = body.data?.id;
+
+            if (!preapprovalId) {
+                return NextResponse.json({ received: true }, { status: 200 });
+            }
+
+            const mpSub = await getMPSubscription(preapprovalId);
+
+            // Map MP status to our enum
+            let status: 'PENDING' | 'AUTHORIZED' | 'PAUSED' | 'CANCELLED' = 'PENDING';
+            switch (mpSub.status) {
+                case 'authorized':
+                    status = 'AUTHORIZED';
+                    break;
+                case 'paused':
+                    status = 'PAUSED';
+                    break;
+                case 'cancelled':
+                    status = 'CANCELLED';
+                    break;
+                case 'pending':
+                default:
+                    status = 'PENDING';
+                    break;
+            }
+
+            // Find subscription by mpSubscriptionId, fallback by external_reference
+            let subscription = await prisma.subscription.findUnique({
+                where: { mpSubscriptionId: String(preapprovalId) },
+            });
+
+            if (!subscription && mpSub.external_reference) {
+                subscription = await prisma.subscription.findFirst({
+                    where: { id: parseInt(mpSub.external_reference) },
+                });
+            }
+
+            if (subscription) {
+                await prisma.subscription.update({
+                    where: { id: subscription.id },
+                    data: {
+                        status,
+                        mpSubscriptionId: String(preapprovalId),
+                        startDate: mpSub.date_created ? new Date(mpSub.date_created) : undefined,
+                        nextPaymentDate: mpSub.next_payment_date ? new Date(mpSub.next_payment_date) : undefined,
+                    },
+                });
+                console.log(`Webhook: Subscription ${subscription.id} updated to ${status}`);
+            } else {
+                console.warn('Webhook: no matching subscription for preapproval', preapprovalId);
+            }
+        }
+
+        // Handle payment notifications
         if (body.type === 'payment') {
             const paymentId = body.data?.id;
 

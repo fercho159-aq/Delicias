@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useCart } from '@/lib/CartContext';
+import { useUser } from '@/lib/UserContext';
 import {
     Sparkles,
     Package,
@@ -18,13 +18,14 @@ import {
     MessageCircle,
     ChevronDown,
     Star,
-    ShoppingCart
+    CreditCard,
+    Loader2
 } from 'lucide-react';
 import './membresias.css';
 
 const plans = [
     {
-        id: 'membresia-basico',
+        id: 'basico',
         name: 'Básico',
         description: 'Perfecto para empezar',
         icon: Package,
@@ -41,7 +42,7 @@ const plans = [
         featured: false,
     },
     {
-        id: 'membresia-premium',
+        id: 'premium',
         name: 'Premium',
         description: 'El favorito de nuestros clientes',
         icon: Sparkles,
@@ -60,7 +61,7 @@ const plans = [
         featured: true,
     },
     {
-        id: 'membresia-familiar',
+        id: 'familiar',
         name: 'Familiar',
         description: 'Para toda la familia',
         icon: Crown,
@@ -137,31 +138,105 @@ const faqs = [
     },
 ];
 
+const PLAN_LABELS: Record<string, string> = {
+    BASICO: 'Básico',
+    PREMIUM: 'Premium',
+    FAMILIAR: 'Familiar',
+};
+
 export default function MembresiasPage() {
     const [isAnnual, setIsAnnual] = useState(false);
     const [openFaq, setOpenFaq] = useState<number | null>(0);
-    const [addedPlan, setAddedPlan] = useState<string | null>(null);
-    const { addItem } = useCart();
+    const { user } = useUser();
 
-    const handleAddToCart = (plan: typeof plans[0], isAnnualPlan: boolean) => {
-        const price = isAnnualPlan ? plan.annualPrice : plan.monthlyPrice;
-        const period = isAnnualPlan ? 'Anual' : 'Mensual';
-        const variantId = parseInt(plan.id.replace('membresia-', '').charCodeAt(0).toString() + (isAnnualPlan ? '1' : '0'));
+    const [isSubscribing, setIsSubscribing] = useState<string | null>(null);
+    const [currentSubscription, setCurrentSubscription] = useState<{
+        plan: string;
+        billingCycle: string;
+        status: string;
+        price: number;
+    } | null>(null);
+    const [showEmailForm, setShowEmailForm] = useState<string | null>(null);
+    const [formData, setFormData] = useState({
+        email: '',
+        firstName: '',
+        lastName: '',
+        phone: '',
+    });
+    const [error, setError] = useState<string | null>(null);
 
-        addItem({
-            variantId: variantId,
-            productId: 90000 + variantId, // Special ID range for memberships
-            productName: `Membresía ${plan.name}`,
-            productSlug: 'membresias',
-            variantName: period,
-            price: price,
-            quantity: 1,
-            image: '/membership-hero.png',
-            maxStock: 999
-        });
+    // Check for existing subscription when user is available
+    useEffect(() => {
+        if (user?.email) {
+            setFormData({
+                email: user.email,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                phone: user.phone,
+            });
+            fetch(`/api/subscriptions/status?email=${encodeURIComponent(user.email)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.subscription) {
+                        setCurrentSubscription(data.subscription);
+                    }
+                })
+                .catch(() => {});
+        }
+    }, [user]);
 
-        setAddedPlan(plan.id);
-        setTimeout(() => setAddedPlan(null), 2000);
+    const handleSubscribe = async (planId: string) => {
+        setError(null);
+
+        // If no user and form not shown yet, show the form
+        if (!user && !showEmailForm) {
+            setShowEmailForm(planId);
+            return;
+        }
+
+        // Determine customer data
+        const customer = user
+            ? { email: user.email, firstName: user.firstName, lastName: user.lastName, phone: user.phone }
+            : formData;
+
+        if (!customer.email) {
+            setError('Por favor ingresa tu email');
+            return;
+        }
+
+        setIsSubscribing(planId);
+
+        try {
+            const res = await fetch('/api/subscriptions/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    plan: planId,
+                    billingCycle: isAnnual ? 'annual' : 'monthly',
+                    customer,
+                }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                setError(data.error || 'Error al crear la suscripción');
+                setIsSubscribing(null);
+                return;
+            }
+
+            if (data.initPoint) {
+                window.location.href = data.initPoint;
+            }
+        } catch {
+            setError('Error de conexión. Intenta de nuevo.');
+            setIsSubscribing(null);
+        }
+    };
+
+    const handleFormSubmit = (e: React.FormEvent, planId: string) => {
+        e.preventDefault();
+        handleSubscribe(planId);
     };
 
     return (
@@ -183,6 +258,24 @@ export default function MembresiasPage() {
                     </p>
                 </div>
             </section>
+
+            {/* Active Subscription Banner */}
+            {currentSubscription && (
+                <section className="subscription-banner">
+                    <div className="container">
+                        <div className="banner-content">
+                            <Shield size={24} />
+                            <div>
+                                <strong>Tu plan actual: {PLAN_LABELS[currentSubscription.plan] || currentSubscription.plan}</strong>
+                                <span>
+                                    {currentSubscription.billingCycle === 'ANNUAL' ? 'Anual' : 'Mensual'} · ${currentSubscription.price.toLocaleString('es-MX')}{currentSubscription.billingCycle === 'ANNUAL' ? '/año' : '/mes'}
+                                    {currentSubscription.status === 'PENDING' && ' · Pendiente de pago'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            )}
 
             {/* Plans */}
             <section className="plans-section">
@@ -210,12 +303,19 @@ export default function MembresiasPage() {
                         <span className="annual-badge">Ahorra 2 meses</span>
                     </div>
 
+                    {error && (
+                        <div className="subscription-error">
+                            {error}
+                        </div>
+                    )}
+
                     {/* Plans Grid */}
                     <div className="plans-grid">
                         {plans.map((plan) => {
                             const Icon = plan.icon;
                             const price = isAnnual ? plan.annualPrice : plan.monthlyPrice;
-                            const isAdded = addedPlan === plan.id;
+                            const isBusy = isSubscribing === plan.id;
+                            const hasActiveSub = !!currentSubscription;
 
                             return (
                                 <div
@@ -262,21 +362,79 @@ export default function MembresiasPage() {
                                     </ul>
 
                                     <button
-                                        onClick={() => handleAddToCart(plan, isAnnual)}
-                                        className={`plan-cta ${plan.featured ? 'primary' : 'secondary'} ${isAdded ? 'added' : ''}`}
+                                        onClick={() => handleSubscribe(plan.id)}
+                                        disabled={isBusy || hasActiveSub}
+                                        className={`plan-cta ${plan.featured ? 'primary' : 'secondary'} ${isBusy ? 'loading' : ''}`}
                                     >
-                                        {isAdded ? (
+                                        {isBusy ? (
                                             <>
-                                                <Check size={18} />
-                                                ¡Agregado al carrito!
+                                                <Loader2 size={18} className="spinner" />
+                                                Redirigiendo a Mercado Pago...
                                             </>
+                                        ) : hasActiveSub ? (
+                                            currentSubscription?.plan === plan.id.toUpperCase() ? 'Plan actual' : 'Ya tienes una suscripción'
                                         ) : (
                                             <>
-                                                <ShoppingCart size={18} />
-                                                Agregar al carrito
+                                                <CreditCard size={18} />
+                                                Suscribirse
                                             </>
                                         )}
                                     </button>
+
+                                    {/* Inline email form for non-logged-in users */}
+                                    {showEmailForm === plan.id && !user && (
+                                        <form
+                                            className="email-form"
+                                            onSubmit={(e) => handleFormSubmit(e, plan.id)}
+                                        >
+                                            <h4>Ingresa tus datos para continuar</h4>
+                                            <div className="email-form-field">
+                                                <input
+                                                    type="email"
+                                                    placeholder="Email *"
+                                                    value={formData.email}
+                                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                                    required
+                                                />
+                                            </div>
+                                            <div className="email-form-row">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Nombre"
+                                                    value={formData.firstName}
+                                                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                                                />
+                                                <input
+                                                    type="text"
+                                                    placeholder="Apellido"
+                                                    value={formData.lastName}
+                                                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                                                />
+                                            </div>
+                                            <div className="email-form-field">
+                                                <input
+                                                    type="tel"
+                                                    placeholder="Teléfono"
+                                                    value={formData.phone}
+                                                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                                />
+                                            </div>
+                                            <button
+                                                type="submit"
+                                                className="email-form-submit"
+                                                disabled={!!isSubscribing}
+                                            >
+                                                {isSubscribing === plan.id ? (
+                                                    <>
+                                                        <Loader2 size={16} className="spinner" />
+                                                        Procesando...
+                                                    </>
+                                                ) : (
+                                                    'Continuar a Mercado Pago'
+                                                )}
+                                            </button>
+                                        </form>
+                                    )}
                                 </div>
                             );
                         })}
