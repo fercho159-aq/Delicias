@@ -466,6 +466,21 @@
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
+/* Test Plan */
+.plan-card.test-plan {
+    border: 2px dashed #f59e0b;
+    background: #fffbeb;
+}
+
+.plan-card.test-plan .plan-icon {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    color: #d97706;
+}
+
+.test-badge {
+    background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+}
+
 /* Subscription Banner */
 .subscription-banner {
     background: linear-gradient(135deg, var(--color-primary-50), var(--color-primary-100));

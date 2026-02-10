@@ -19,7 +19,8 @@ import {
     ChevronDown,
     Star,
     CreditCard,
-    Loader2
+    Loader2,
+    FlaskConical
 } from 'lucide-react';
 import './membresias.css';
 
@@ -77,6 +78,22 @@ const plans = [
             'Regalo sorpresa cada trimestre',
             'Caja personalizable',
             'Consultoría nutricional básica',
+        ],
+        featured: false,
+    },
+    {
+        id: 'test',
+        name: 'Prueba',
+        description: 'Plan de prueba - facturación diaria',
+        icon: FlaskConical,
+        monthlyPrice: 1,
+        annualPrice: 1,
+        savings: '',
+        isTest: true,
+        features: [
+            'Facturación diaria de $1 MXN',
+            'Solo para pruebas de sandbox',
+            'Verificar cobros recurrentes',
         ],
         featured: false,
     },
@@ -142,6 +159,7 @@ const PLAN_LABELS: Record<string, string> = {
     BASICO: 'Básico',
     PREMIUM: 'Premium',
     FAMILIAR: 'Familiar',
+    TEST: 'Prueba',
 };
 
 export default function MembresiasPage() {
@@ -212,7 +230,7 @@ export default function MembresiasPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     plan: planId,
-                    billingCycle: isAnnual ? 'annual' : 'monthly',
+                    billingCycle: planId === 'test' ? 'daily' : (isAnnual ? 'annual' : 'monthly'),
                     customer,
                 }),
             });
@@ -313,17 +331,21 @@ export default function MembresiasPage() {
                     <div className="plans-grid">
                         {plans.map((plan) => {
                             const Icon = plan.icon;
-                            const price = isAnnual ? plan.annualPrice : plan.monthlyPrice;
+                            const isTestPlan = 'isTest' in plan && plan.isTest;
+                            const price = isTestPlan ? 1 : (isAnnual ? plan.annualPrice : plan.monthlyPrice);
                             const isBusy = isSubscribing === plan.id;
                             const hasActiveSub = !!currentSubscription;
 
                             return (
                                 <div
                                     key={plan.id}
-                                    className={`plan-card ${plan.featured ? 'featured' : ''}`}
+                                    className={`plan-card ${plan.featured ? 'featured' : ''} ${isTestPlan ? 'test-plan' : ''}`}
                                 >
                                     {plan.featured && (
                                         <div className="plan-badge">Más Popular</div>
+                                    )}
+                                    {isTestPlan && (
+                                        <div className="plan-badge test-badge">Sandbox</div>
                                     )}
 
                                     <div className="plan-header">
@@ -338,14 +360,16 @@ export default function MembresiasPage() {
                                         <div className="plan-price">
                                             <span className="currency">$</span>
                                             <span className="amount">
-                                                {isAnnual
+                                                {isTestPlan
+                                                    ? '1'
+                                                    : isAnnual
                                                     ? Math.round(price / 12).toLocaleString('es-MX')
                                                     : price.toLocaleString('es-MX')
                                                 }
                                             </span>
-                                            <span className="period">/mes</span>
+                                            <span className="period">{isTestPlan ? '/día' : '/mes'}</span>
                                         </div>
-                                        {isAnnual && (
+                                        {isAnnual && !isTestPlan && (
                                             <div className="plan-savings">
                                                 {plan.savings} · ${price.toLocaleString('es-MX')}/año
                                             </div>

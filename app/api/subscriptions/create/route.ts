@@ -3,10 +3,11 @@ import prisma from '@/lib/prisma';
 import { createMPSubscription } from '@/lib/mercadopago';
 import { SubscriptionPlan, BillingCycle } from '@prisma/client';
 
-const PLAN_PRICES: Record<SubscriptionPlan, { monthly: number; annual: number }> = {
+const PLAN_PRICES: Record<SubscriptionPlan, { monthly: number; annual: number; daily?: number }> = {
     BASICO: { monthly: 499, annual: 4990 },
     PREMIUM: { monthly: 799, annual: 7990 },
     FAMILIAR: { monthly: 1199, annual: 11990 },
+    TEST: { monthly: 1, annual: 1, daily: 1 },
 };
 
 interface CreateSubscriptionBody {
@@ -40,9 +41,14 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const billingCycle = body.billingCycle?.toUpperCase() === 'ANNUAL' ? BillingCycle.ANNUAL : BillingCycle.MONTHLY;
+        const cycleInput = body.billingCycle?.toUpperCase();
+        const billingCycle = cycleInput === 'ANNUAL' ? BillingCycle.ANNUAL
+            : cycleInput === 'DAILY' ? BillingCycle.DAILY
+            : BillingCycle.MONTHLY;
         const price = billingCycle === BillingCycle.ANNUAL
             ? PLAN_PRICES[plan].annual
+            : billingCycle === BillingCycle.DAILY
+            ? (PLAN_PRICES[plan].daily ?? PLAN_PRICES[plan].monthly)
             : PLAN_PRICES[plan].monthly;
 
         // Find or create user
@@ -90,18 +96,30 @@ export async function POST(request: NextRequest) {
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
         // Create subscription in Mercado Pago
-        const frequency = billingCycle === BillingCycle.ANNUAL ? 12 : 1;
-        const transactionAmount = billingCycle === BillingCycle.ANNUAL
-            ? PLAN_PRICES[plan].annual
-            : PLAN_PRICES[plan].monthly;
+        let frequency = 1;
+        let frequencyType = 'months';
+        let transactionAmount = PLAN_PRICES[plan].monthly;
+        let label = 'Mensual';
+
+        if (billingCycle === BillingCycle.ANNUAL) {
+            frequency = 12;
+            frequencyType = 'months';
+            transactionAmount = PLAN_PRICES[plan].annual;
+            label = 'Anual';
+        } else if (billingCycle === BillingCycle.DAILY) {
+            frequency = 1;
+            frequencyType = 'days';
+            transactionAmount = PLAN_PRICES[plan].daily ?? 1;
+            label = 'Diario';
+        }
 
         const mpSubscription = await createMPSubscription({
-            reason: `Membresía ${plan.charAt(0) + plan.slice(1).toLowerCase()} - ${billingCycle === BillingCycle.ANNUAL ? 'Anual' : 'Mensual'}`,
+            reason: `Membresía ${plan.charAt(0) + plan.slice(1).toLowerCase()} - ${label}`,
             external_reference: String(subscription.id),
             payer_email: body.customer.email,
             auto_recurring: {
                 frequency,
-                frequency_type: 'months',
+                frequency_type: frequencyType,
                 transaction_amount: transactionAmount,
                 currency_id: 'MXN',
             },

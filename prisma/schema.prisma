@@ -255,11 +255,13 @@ enum SubscriptionPlan {
   BASICO
   PREMIUM
   FAMILIAR
+  TEST
 }
 
 enum BillingCycle {
   MONTHLY
   ANNUAL
+  DAILY
 }
 
 model Subscription {
