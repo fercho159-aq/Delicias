@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { createMPSubscription } from '@/lib/mercadopago';
 import { SubscriptionPlan, BillingCycle } from '@prisma/client';
+import { sanitizeString, isValidEmail } from '@/lib/validation';
 
 const PLAN_PRICES: Record<SubscriptionPlan, { monthly: number; annual: number; daily?: number }> = {
     BASICO: { monthly: 499, annual: 4990 },
@@ -25,23 +26,50 @@ export async function POST(request: NextRequest) {
     try {
         const body: CreateSubscriptionBody = await request.json();
 
+        // --- Input validation ---
+        const errors: string[] = [];
+
         // Validate plan
         const plan = body.plan?.toUpperCase() as SubscriptionPlan;
-        if (!PLAN_PRICES[plan]) {
+        const validPlans = Object.keys(PLAN_PRICES);
+        if (!plan || !validPlans.includes(plan)) {
+            errors.push(`El plan es inválido. Los planes válidos son: ${validPlans.join(', ')}.`);
+        }
+
+        // Validate billingCycle
+        const validCycles = ['MONTHLY', 'ANNUAL', 'DAILY'];
+        const cycleRaw = body.billingCycle?.toUpperCase();
+        if (!cycleRaw || !validCycles.includes(cycleRaw)) {
+            errors.push(`El ciclo de facturación es inválido. Los valores válidos son: ${validCycles.join(', ')}.`);
+        }
+
+        // Validate customer email
+        if (!body.customer?.email || !isValidEmail(body.customer.email)) {
+            errors.push('El correo electrónico no es válido.');
+        }
+
+        // Validate customer names
+        if (!sanitizeString(body.customer?.firstName)) {
+            errors.push('El nombre es requerido.');
+        }
+        if (!sanitizeString(body.customer?.lastName)) {
+            errors.push('El apellido es requerido.');
+        }
+
+        if (errors.length > 0) {
             return NextResponse.json(
-                { error: 'Plan inválido' },
+                { error: errors.join(' ') },
                 { status: 400 }
             );
         }
 
-        if (!body.customer?.email) {
-            return NextResponse.json(
-                { error: 'Email es requerido' },
-                { status: 400 }
-            );
-        }
+        // Sanitize string inputs
+        body.customer.firstName = sanitizeString(body.customer.firstName);
+        body.customer.lastName = sanitizeString(body.customer.lastName);
+        body.customer.email = body.customer.email.trim().toLowerCase();
+        body.customer.phone = sanitizeString(body.customer.phone);
 
-        const cycleInput = body.billingCycle?.toUpperCase();
+        const cycleInput = cycleRaw;
         const billingCycle = cycleInput === 'ANNUAL' ? BillingCycle.ANNUAL
             : cycleInput === 'DAILY' ? BillingCycle.DAILY
             : BillingCycle.MONTHLY;

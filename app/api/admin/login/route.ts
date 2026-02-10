@@ -2,21 +2,31 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { verifyPassword, createSession } from '@/lib/auth';
 import { cookies } from 'next/headers';
+import { isValidEmail, sanitizeString } from '@/lib/validation';
 
 export async function POST(request: NextRequest) {
     try {
         const { email, password } = await request.json();
 
-        if (!email || !password) {
+        if (!email || !isValidEmail(email)) {
             return NextResponse.json(
-                { error: 'Email y contraseña son requeridos' },
+                { error: 'Correo electrónico inválido' },
                 { status: 400 }
             );
         }
 
+        if (!password || typeof password !== 'string' || password.length < 6) {
+            return NextResponse.json(
+                { error: 'La contraseña debe tener al menos 6 caracteres' },
+                { status: 400 }
+            );
+        }
+
+        const sanitizedEmail = email.trim().toLowerCase();
+
         // Find user by email
         const user = await prisma.user.findUnique({
-            where: { email }
+            where: { email: sanitizedEmail }
         });
 
         if (!user) {

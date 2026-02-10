@@ -5,12 +5,14 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { useCart } from '@/lib/CartContext';
 import { useUser } from '@/lib/UserContext';
+import SearchModal from '@/components/SearchModal';
 import './Header.css';
 
 const Header = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isCatalogDropdownOpen, setIsCatalogDropdownOpen] = useState(false);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
     const { itemCount, openCart } = useCart();
     const { user } = useUser();
 
@@ -89,7 +91,7 @@ const Header = () => {
                 {/* Actions */}
                 <div className="header-actions">
                     {/* Search */}
-                    <button className="header-action-btn" aria-label="Buscar">
+                    <button className="header-action-btn" aria-label="Buscar" onClick={() => setIsSearchOpen(true)}>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <circle cx="11" cy="11" r="8" />
                             <path d="m21 21-4.3-4.3" />
@@ -183,6 +185,9 @@ const Header = () => {
                     Contáctanos por WhatsApp
                 </a>
             </nav>
+
+            {/* Search Modal */}
+            <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
         </header>
     );
 };

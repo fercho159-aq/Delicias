@@ -52,8 +52,60 @@ export default function CheckoutPage() {
         paymentMethod: 'whatsapp',
     });
 
-    const shipping = subtotal >= 999 ? 0 : 150;
-    const total = subtotal + shipping;
+    // Discount code state
+    const [discountCode, setDiscountCode] = useState('');
+    const [discountLoading, setDiscountLoading] = useState(false);
+    const [discountError, setDiscountError] = useState('');
+    const [appliedDiscount, setAppliedDiscount] = useState<{
+        code: string;
+        type: string;
+        value: number;
+        discountAmount: number;
+        description: string;
+    } | null>(null);
+
+    const baseShipping = subtotal >= 999 ? 0 : 150;
+    const shipping = appliedDiscount?.type === 'FREE_SHIPPING' ? 0 : baseShipping;
+    const discountAmount = appliedDiscount
+        ? appliedDiscount.type === 'FREE_SHIPPING'
+            ? baseShipping
+            : appliedDiscount.discountAmount
+        : 0;
+    const total = subtotal + shipping - discountAmount;
+
+    const handleApplyDiscount = async () => {
+        if (!discountCode.trim()) return;
+
+        setDiscountLoading(true);
+        setDiscountError('');
+        setAppliedDiscount(null);
+
+        try {
+            const res = await fetch(
+                `/api/discounts/validate?code=${encodeURIComponent(discountCode.trim())}&subtotal=${subtotal}`
+            );
+            const data = await res.json();
+
+            if (data.valid) {
+                setAppliedDiscount(data.discount);
+                setDiscountError('');
+            } else {
+                setDiscountError(data.message || 'Código no válido.');
+                setAppliedDiscount(null);
+            }
+        } catch {
+            setDiscountError('Error al validar el código. Intenta de nuevo.');
+            setAppliedDiscount(null);
+        } finally {
+            setDiscountLoading(false);
+        }
+    };
+
+    const handleRemoveDiscount = () => {
+        setAppliedDiscount(null);
+        setDiscountCode('');
+        setDiscountError('');
+    };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -84,6 +136,9 @@ export default function CheckoutPage() {
 
         message += `\n💰 *Subtotal:* $${subtotal.toLocaleString('es-MX')}\n`;
         message += `🚚 *Envío:* ${shipping === 0 ? 'Gratis' : `$${shipping.toLocaleString('es-MX')}`}\n`;
+        if (appliedDiscount && discountAmount > 0) {
+            message += `🏷️ *Descuento (${appliedDiscount.code}):* -$${discountAmount.toLocaleString('es-MX')}\n`;
+        }
         message += `✨ *Total:* $${total.toLocaleString('es-MX')} MXN\n\n`;
 
         if (formData.notes) {
@@ -129,6 +184,7 @@ export default function CheckoutPage() {
                         subtotal,
                         shippingCost: shipping,
                         total,
+                        discountCode: appliedDiscount?.code || undefined,
                     }),
                 });
 
@@ -559,6 +615,162 @@ export default function CheckoutPage() {
                             ))}
                         </div>
 
+                        {/* Discount Code Section */}
+                        <div style={{
+                            padding: '1rem 0',
+                            borderTop: '1px solid #f0ede8',
+                            borderBottom: '1px solid #f0ede8',
+                            marginBottom: '0.5rem',
+                        }}>
+                            <label
+                                style={{
+                                    display: 'block',
+                                    fontSize: '0.813rem',
+                                    fontWeight: 600,
+                                    color: '#5c5347',
+                                    marginBottom: '0.5rem',
+                                }}
+                            >
+                                Código de descuento
+                            </label>
+                            {appliedDiscount ? (
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    background: '#f0fdf4',
+                                    border: '1px solid #bbf7d0',
+                                    borderRadius: '8px',
+                                    padding: '0.625rem 0.75rem',
+                                }}>
+                                    <div>
+                                        <span style={{
+                                            fontSize: '0.813rem',
+                                            fontWeight: 600,
+                                            color: '#16a34a',
+                                        }}>
+                                            {appliedDiscount.code}
+                                        </span>
+                                        <span style={{
+                                            display: 'block',
+                                            fontSize: '0.75rem',
+                                            color: '#15803d',
+                                            marginTop: '2px',
+                                        }}>
+                                            {appliedDiscount.description}
+                                        </span>
+                                    </div>
+                                    <button
+                                        onClick={handleRemoveDiscount}
+                                        style={{
+                                            background: 'none',
+                                            border: 'none',
+                                            color: '#dc2626',
+                                            fontSize: '0.75rem',
+                                            fontWeight: 500,
+                                            cursor: 'pointer',
+                                            padding: '4px 8px',
+                                            borderRadius: '4px',
+                                            transition: 'background 0.2s',
+                                        }}
+                                        onMouseOver={(e) => (e.currentTarget.style.background = '#fef2f2')}
+                                        onMouseOut={(e) => (e.currentTarget.style.background = 'none')}
+                                    >
+                                        Quitar
+                                    </button>
+                                </div>
+                            ) : (
+                                <>
+                                    <div style={{
+                                        display: 'flex',
+                                        gap: '0.5rem',
+                                    }}>
+                                        <input
+                                            type="text"
+                                            value={discountCode}
+                                            onChange={(e) => {
+                                                setDiscountCode(e.target.value.toUpperCase());
+                                                if (discountError) setDiscountError('');
+                                            }}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    e.preventDefault();
+                                                    handleApplyDiscount();
+                                                }
+                                            }}
+                                            placeholder="Ej: BIENVENIDO10"
+                                            disabled={discountLoading}
+                                            style={{
+                                                flex: 1,
+                                                padding: '0.5rem 0.75rem',
+                                                border: discountError
+                                                    ? '1px solid #fca5a5'
+                                                    : '1px solid #d6d3cd',
+                                                borderRadius: '8px',
+                                                fontSize: '0.875rem',
+                                                outline: 'none',
+                                                background: 'white',
+                                                color: '#3d3a36',
+                                                transition: 'border-color 0.2s',
+                                                minWidth: 0,
+                                            }}
+                                            onFocus={(e) => {
+                                                if (!discountError) e.currentTarget.style.borderColor = '#22c55e';
+                                                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(34,197,94,0.1)';
+                                            }}
+                                            onBlur={(e) => {
+                                                if (!discountError) e.currentTarget.style.borderColor = '#d6d3cd';
+                                                e.currentTarget.style.boxShadow = 'none';
+                                            }}
+                                        />
+                                        <button
+                                            onClick={handleApplyDiscount}
+                                            disabled={discountLoading || !discountCode.trim()}
+                                            style={{
+                                                padding: '0.5rem 1rem',
+                                                background: discountLoading || !discountCode.trim()
+                                                    ? '#d6d3cd'
+                                                    : '#3d6b2e',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '8px',
+                                                fontSize: '0.813rem',
+                                                fontWeight: 600,
+                                                cursor: discountLoading || !discountCode.trim()
+                                                    ? 'not-allowed'
+                                                    : 'pointer',
+                                                whiteSpace: 'nowrap',
+                                                transition: 'background 0.2s',
+                                                opacity: discountLoading || !discountCode.trim() ? 0.6 : 1,
+                                            }}
+                                            onMouseOver={(e) => {
+                                                if (!discountLoading && discountCode.trim()) {
+                                                    e.currentTarget.style.background = '#2d5121';
+                                                }
+                                            }}
+                                            onMouseOut={(e) => {
+                                                if (!discountLoading && discountCode.trim()) {
+                                                    e.currentTarget.style.background = '#3d6b2e';
+                                                }
+                                            }}
+                                        >
+                                            {discountLoading ? 'Validando...' : 'Aplicar'}
+                                        </button>
+                                    </div>
+                                    {discountError && (
+                                        <p style={{
+                                            fontSize: '0.75rem',
+                                            color: '#dc2626',
+                                            margin: '0.375rem 0 0',
+                                            lineHeight: 1.3,
+                                        }}>
+                                            {discountError}
+                                        </p>
+                                    )}
+                                </>
+                            )}
+                        </div>
+
                         <div className="summary-totals">
                             <div className="summary-row">
                                 <span>Subtotal</span>
@@ -574,6 +786,14 @@ export default function CheckoutPage() {
                                     )}
                                 </span>
                             </div>
+                            {appliedDiscount && discountAmount > 0 && (
+                                <div className="summary-row" style={{ color: '#16a34a' }}>
+                                    <span style={{ color: '#16a34a' }}>Descuento</span>
+                                    <span style={{ color: '#16a34a', fontWeight: 600 }}>
+                                        -${discountAmount.toLocaleString('es-MX')}
+                                    </span>
+                                </div>
+                            )}
                             <div className="summary-divider" />
                             <div className="summary-row total">
                                 <span>Total</span>

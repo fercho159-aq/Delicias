@@ -15,6 +15,8 @@ import {
 import { getLatestProducts, getCategories } from "@/lib/products";
 import { ProductCard, ProductGrid } from "@/components/ProductCard";
 import CategoriesCarousel from "@/components/CategoriesCarousel";
+import { getConfigs } from "@/lib/config";
+import prisma from "@/lib/prisma";
 import "./page.css";
 
 // Category icons mapping
@@ -65,9 +67,8 @@ const cmsContent = {
 };
 
 export default async function Home() {
-  // Fetch real data from database
   // Fetch real data from database with error handling
-  const [products, categories] = await Promise.all([
+  const [products, categories, productCount, siteConfig] = await Promise.all([
     getLatestProducts(8).catch((err) => {
       console.error('Failed to fetch products:', err);
       return [];
@@ -75,6 +76,14 @@ export default async function Home() {
     getCategories().catch((err) => {
       console.error('Failed to fetch categories:', err);
       return [];
+    }),
+    prisma.product.count({ where: { status: 'ACTIVE' } }).catch((err) => {
+      console.error('Failed to count products:', err);
+      return 0;
+    }),
+    getConfigs(['whatsapp_number']).catch((err) => {
+      console.error('Failed to fetch site config:', err);
+      return { whatsapp_number: '5215519915154' } as Record<string, string>;
     }),
   ]);
 
@@ -116,7 +125,7 @@ export default async function Home() {
           </div>
           <div className="hero-stats">
             <div className="stat-item">
-              <span className="stat-number">129+</span>
+              <span className="stat-number">{productCount}+</span>
               <span className="stat-label">Productos</span>
             </div>
             <div className="stat-divider"></div>
@@ -248,7 +257,7 @@ export default async function Home() {
                 Explorar productos
               </Link>
               <Link
-                href="https://wa.me/5215519915154"
+                href={`https://wa.me/${siteConfig.whatsapp_number}`}
                 target="_blank"
                 className="btn btn-outline btn-lg"
               >
