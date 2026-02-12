@@ -7,7 +7,6 @@ import {
   MessageCircle,
   Gift,
   ChevronRight,
-  Star,
   ShoppingCart,
   Package,
 } from "lucide-react";
@@ -16,7 +15,6 @@ import { getLatestProducts, getCategories } from "@/lib/products";
 import { ProductCard, ProductGrid } from "@/components/ProductCard";
 import CategoriesCarousel from "@/components/CategoriesCarousel";
 import { getConfigs } from "@/lib/config";
-import prisma from "@/lib/prisma";
 import "./page.css";
 
 // Category icons mapping
@@ -68,7 +66,7 @@ const cmsContent = {
 
 export default async function Home() {
   // Fetch real data from database with error handling
-  const [products, categories, productCount, siteConfig] = await Promise.all([
+  const [products, categories, siteConfig] = await Promise.all([
     getLatestProducts(8).catch((err) => {
       console.error('Failed to fetch products:', err);
       return [];
@@ -76,10 +74,6 @@ export default async function Home() {
     getCategories().catch((err) => {
       console.error('Failed to fetch categories:', err);
       return [];
-    }),
-    prisma.product.count({ where: { status: 'ACTIVE' } }).catch((err) => {
-      console.error('Failed to count products:', err);
-      return 0;
     }),
     getConfigs(['whatsapp_number']).catch((err) => {
       console.error('Failed to fetch site config:', err);
@@ -114,53 +108,13 @@ export default async function Home() {
         <div className="hero-background">
           <Image
             src="/hero-valentines.png"
-            alt="San Valentín - Delicias del Campo"
+            alt="San Valentín - Las Delicias del Campo"
             fill
             priority
             style={{ objectFit: "cover" }}
           />
-          <div className="hero-overlay"></div>
         </div>
-        <div className="container hero-content">
-          <div className="hero-badge">
-            <Gift size={16} />
-            <span>Del Campo a tu Mesa</span>
-          </div>
-          <h1 className="hero-title">
-            Nueces, Semillas y<br />
-            <span className="gradient-text">Frutos Secos Premium</span>
-          </h1>
-          <p className="hero-subtitle">
-            Descubre nuestra selección de productos naturales de la más alta
-            calidad. Directo del campo mexicano a tu hogar.
-          </p>
-          <div className="hero-buttons">
-            <Link href="/productos" className="btn btn-primary btn-lg">
-              <ShoppingCart size={20} />
-              Comprar ahora
-            </Link>
-            <Link href="/nosotros" className="btn btn-outline btn-lg">
-              Conoce más
-            </Link>
-          </div>
-          <div className="hero-stats">
-            <div className="stat-item">
-              <span className="stat-number">{productCount}+</span>
-              <span className="stat-label">Productos</span>
-            </div>
-            <div className="stat-divider"></div>
-            <div className="stat-item">
-              <span className="stat-number">10k+</span>
-              <span className="stat-label">Clientes felices</span>
-            </div>
-            <div className="stat-divider"></div>
-            <div className="stat-item">
-              <Star size={18} />
-              <span className="stat-number">4.9</span>
-              <span className="stat-label">Calificación</span>
-            </div>
-          </div>
-        </div>
+        <Link href="/productos" className="hero-link" aria-label="Ver productos" />
       </section>
 
       {/* Categories Carousel */}
