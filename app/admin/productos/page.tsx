@@ -1,28 +1,90 @@
-import { prisma } from '@/lib/prisma';
+'use client';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Plus, Search, Edit, Trash2, Eye } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
 
-async function getProducts() {
-    const products = await prisma.product.findMany({
-        include: {
-            category: true,
-            images: {
-                orderBy: { position: 'asc' },
-                take: 1
-            },
-            variants: {
-                orderBy: { price: 'asc' },
-                take: 1
-            }
-        },
-        orderBy: { createdAt: 'desc' }
-    });
-    return products;
+interface Product {
+    id: number;
+    name: string;
+    slug: string;
+    sku: string | null;
+    status: string;
+    type: string;
+    category: { name: string } | null;
+    images: { url: string }[];
+    variants: { price: string | number }[];
 }
 
-export default async function ProductosAdmin() {
-    const products = await getProducts();
+const ITEMS_PER_PAGE = 20;
+
+export default function ProductosAdmin() {
+    const [products, setProducts] = useState<Product[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [search, setSearch] = useState('');
+    const [page, setPage] = useState(1);
+    const [deleting, setDeleting] = useState<number | null>(null);
+
+    useEffect(() => {
+        fetchProducts();
+    }, []);
+
+    const fetchProducts = async () => {
+        try {
+            const res = await fetch('/api/admin/products');
+            if (res.ok) {
+                const data = await res.json();
+                setProducts(data);
+            }
+        } catch {
+            console.error('Error fetching products');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDelete = async (id: number, name: string) => {
+        if (!confirm(`¿Eliminar "${name}"? Esta acción no se puede deshacer.`)) return;
+        setDeleting(id);
+        try {
+            const res = await fetch(`/api/admin/products/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                setProducts(prev => prev.filter(p => p.id !== id));
+            } else {
+                const data = await res.json();
+                alert(data.error || 'Error al eliminar');
+            }
+        } catch {
+            alert('Error de conexión');
+        } finally {
+            setDeleting(null);
+        }
+    };
+
+    const filtered = products.filter(p =>
+        p.name.toLowerCase().includes(search.toLowerCase()) ||
+        (p.sku && p.sku.toLowerCase().includes(search.toLowerCase())) ||
+        (p.category?.name && p.category.name.toLowerCase().includes(search.toLowerCase()))
+    );
+
+    const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+    const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+
+    // Reset to page 1 when search changes
+    useEffect(() => { setPage(1); }, [search]);
+
+    if (loading) {
+        return (
+            <>
+                <header className="admin-header"><h1>Productos</h1></header>
+                <div className="admin-content">
+                    <div style={{ textAlign: 'center', padding: '3rem' }}>
+                        <div className="spinner" style={{ margin: '0 auto', width: 40, height: 40, border: '3px solid #e2e8f0', borderTop: '3px solid #22c55e', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                    </div>
+                </div>
+            </>
+        );
+    }
 
     return (
         <>
@@ -39,11 +101,16 @@ export default async function ProductosAdmin() {
             <div className="admin-content">
                 <div className="data-table-container">
                     <div className="table-header">
-                        <h2>Todos los productos ({products.length})</h2>
+                        <h2>Todos los productos ({filtered.length})</h2>
                         <div className="table-actions">
                             <div className="search-input">
                                 <Search size={18} />
-                                <input type="text" placeholder="Buscar productos..." />
+                                <input
+                                    type="text"
+                                    placeholder="Buscar productos..."
+                                    value={search}
+                                    onChange={e => setSearch(e.target.value)}
+                                />
                             </div>
                         </div>
                     </div>
@@ -60,7 +127,7 @@ export default async function ProductosAdmin() {
                             </tr>
                         </thead>
                         <tbody>
-                            {products.map((product: any) => (
+                            {paginated.map((product) => (
                                 <tr key={product.id}>
                                     <td>
                                         <div className="product-cell">
@@ -115,6 +182,8 @@ export default async function ProductosAdmin() {
                                             <button
                                                 className="action-btn delete"
                                                 title="Eliminar"
+                                                onClick={() => handleDelete(product.id, product.name)}
+                                                disabled={deleting === product.id}
                                             >
                                                 <Trash2 size={16} />
                                             </button>
@@ -125,15 +194,49 @@ export default async function ProductosAdmin() {
                         </tbody>
                     </table>
 
-                    {products.length === 0 && (
+                    {filtered.length === 0 && (
                         <div style={{ textAlign: 'center', padding: '3rem' }}>
                             <p style={{ color: '#64748b', marginBottom: '1rem' }}>
-                                No hay productos aún
+                                {search ? 'No se encontraron productos' : 'No hay productos aún'}
                             </p>
-                            <Link href="/admin/productos/nuevo" className="btn-admin primary">
-                                <Plus size={18} />
-                                Crear primer producto
-                            </Link>
+                            {!search && (
+                                <Link href="/admin/productos/nuevo" className="btn-admin primary">
+                                    <Plus size={18} />
+                                    Crear primer producto
+                                </Link>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '0.5rem',
+                            padding: '1.25rem',
+                            borderTop: '1px solid #e2e8f0',
+                        }}>
+                            <button
+                                onClick={() => setPage(p => Math.max(1, p - 1))}
+                                disabled={page === 1}
+                                className="action-btn"
+                                style={{ opacity: page === 1 ? 0.5 : 1 }}
+                            >
+                                <ChevronLeft size={16} />
+                            </button>
+                            <span style={{ fontSize: '0.875rem', color: '#64748b', padding: '0 0.75rem' }}>
+                                Página {page} de {totalPages}
+                            </span>
+                            <button
+                                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                                disabled={page === totalPages}
+                                className="action-btn"
+                                style={{ opacity: page === totalPages ? 0.5 : 1 }}
+                            >
+                                <ChevronRight size={16} />
+                            </button>
                         </div>
                     )}
                 </div>

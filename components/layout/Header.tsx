@@ -8,7 +8,7 @@ import { useUser } from '@/lib/UserContext';
 import SearchModal from '@/components/SearchModal';
 import './Header.css';
 
-const Header = () => {
+const Header = ({ whatsappNumber = '5215519915154' }: { whatsappNumber?: string }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isCatalogDropdownOpen, setIsCatalogDropdownOpen] = useState(false);
@@ -119,7 +119,7 @@ const Header = () => {
 
                     {/* WhatsApp */}
                     <a
-                        href="https://wa.me/5215519915154"
+                        href={`https://wa.me/${whatsappNumber}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="header-action-btn whatsapp-btn"
@@ -174,7 +174,7 @@ const Header = () => {
                 <Link href="/contacto" className="nav-link-mobile" onClick={() => setIsMobileMenuOpen(false)}>Contacto</Link>
                 <Link href="/membresias" className="nav-link-mobile" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#22c55e', fontWeight: 600 }}>Membresías</Link>
                 <a
-                    href="https://wa.me/5215519915154"
+                    href={`https://wa.me/${whatsappNumber}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="nav-whatsapp-btn"

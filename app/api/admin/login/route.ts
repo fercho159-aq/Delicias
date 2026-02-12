@@ -3,9 +3,23 @@ import { prisma } from '@/lib/prisma';
 import { verifyPassword, createSession } from '@/lib/auth';
 import { cookies } from 'next/headers';
 import { isValidEmail, sanitizeString } from '@/lib/validation';
+import { rateLimit } from '@/lib/rate-limit';
+
+const loginLimiter = rateLimit({ limit: 5, windowMs: 60 * 1000 }); // 5 attempts per minute
 
 export async function POST(request: NextRequest) {
     try {
+        // Rate limit login attempts by IP
+        const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+            request.headers.get('x-real-ip') || 'unknown';
+        const { success, remaining } = loginLimiter.check(ip);
+        if (!success) {
+            return NextResponse.json(
+                { error: 'Demasiados intentos de inicio de sesión. Intenta de nuevo en un minuto.' },
+                { status: 429, headers: { 'Retry-After': '60' } }
+            );
+        }
+
         const { email, password } = await request.json();
 
         if (!email || !isValidEmail(email)) {

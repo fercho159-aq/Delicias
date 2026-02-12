@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { preference } from '@/lib/mercadopago';
+import { sendOrderConfirmationEmail, sendOrderNotificationEmail } from '@/lib/email';
 import {
     sanitizeString,
     isValidEmail,
@@ -346,6 +347,37 @@ export async function POST(request: NextRequest) {
             where: { id: order.id },
             data: { mpPreferenceId: mpPreference.id }
         });
+
+        // Send confirmation emails (fire-and-forget)
+        const emailData = {
+            orderNumber,
+            customerEmail: body.customer.email,
+            customerName: `${body.customer.firstName} ${body.customer.lastName}`,
+            customerPhone: body.customer.phone,
+            paymentMethod: 'mercadopago',
+            items: body.items.map((item: CheckoutItem) => ({
+                name: `${item.productName}${item.variantName ? ` - ${item.variantName}` : ''}`,
+                quantity: item.quantity,
+                price: item.price,
+                total: item.price * item.quantity,
+            })),
+            subtotal: body.subtotal,
+            shippingCost: body.shippingCost,
+            discount: serverDiscountAmount,
+            total: body.total,
+            shippingAddress: {
+                street: body.shipping.address,
+                city: body.shipping.city,
+                state: body.shipping.state,
+                postalCode: body.shipping.zipCode,
+            },
+            notes: body.notes || undefined,
+        };
+
+        Promise.all([
+            sendOrderConfirmationEmail(emailData),
+            sendOrderNotificationEmail(emailData),
+        ]).catch(err => console.error('Error sending order emails:', err));
 
         return NextResponse.json({
             success: true,

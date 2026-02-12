@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/lib/CartContext';
-import { useUser, UserOrder } from '@/lib/UserContext';
+import { useUser } from '@/lib/UserContext';
 import {
     ArrowLeft,
     ShoppingBag,
@@ -33,7 +33,7 @@ interface CheckoutFormData {
 export default function CheckoutPage() {
     const router = useRouter();
     const { items, subtotal, clearCart } = useCart();
-    const { login, addOrder } = useUser();
+    const { user, setGuestUser, refreshUser } = useUser();
     const [step, setStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [orderComplete, setOrderComplete] = useState(false);
@@ -52,7 +52,30 @@ export default function CheckoutPage() {
         paymentMethod: 'whatsapp',
     });
 
+    // Pre-fill form if user is authenticated
+    const [prefilled, setPrefilled] = useState(false);
+    if (user && !user.isGuest && !prefilled) {
+        setPrefilled(true);
+        setFormData(prev => ({
+            ...prev,
+            email: user.email || prev.email,
+            firstName: user.firstName || prev.firstName,
+            lastName: user.lastName || prev.lastName,
+            phone: user.phone || prev.phone,
+        }));
+    }
+
     // Discount code state
+    const [whatsappNumber, setWhatsappNumber] = useState('5215519915154');
+
+    // Fetch WhatsApp number from config
+    useState(() => {
+        fetch('/api/config?keys=whatsapp_number')
+            .then(r => r.json())
+            .then(data => { if (data.whatsapp_number) setWhatsappNumber(data.whatsapp_number); })
+            .catch(() => {});
+    });
+
     const [discountCode, setDiscountCode] = useState('');
     const [discountLoading, setDiscountLoading] = useState(false);
     const [discountError, setDiscountError] = useState('');
@@ -110,12 +133,6 @@ export default function CheckoutPage() {
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
-    const generateOrderNumber = () => {
-        const timestamp = Date.now().toString(36).toUpperCase();
-        const random = Math.random().toString(36).substr(2, 4).toUpperCase();
-        return `DEL-${timestamp}-${random}`;
     };
 
     const generateWhatsAppMessage = (orderId: string) => {
@@ -199,48 +216,66 @@ export default function CheckoutPage() {
                 return;
 
             } else {
-                // WhatsApp / Transfer flow (existing logic)
-                const orderId = generateOrderNumber();
+                // WhatsApp / Transfer flow — persist order in DB
+                const orderResponse = await fetch('/api/checkout/create-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        items: items.map(item => ({
+                            variantId: item.variantId,
+                            productName: item.productName,
+                            variantName: item.variantName,
+                            price: item.price,
+                            quantity: item.quantity,
+                            image: item.image,
+                        })),
+                        customer: {
+                            email: formData.email,
+                            firstName: formData.firstName,
+                            lastName: formData.lastName,
+                            phone: formData.phone,
+                        },
+                        shipping: {
+                            address: formData.address,
+                            city: formData.city,
+                            state: formData.state,
+                            zipCode: formData.zipCode,
+                        },
+                        notes: formData.notes,
+                        subtotal,
+                        shippingCost: shipping,
+                        total,
+                        discountCode: appliedDiscount?.code || undefined,
+                        paymentMethod: formData.paymentMethod,
+                    }),
+                });
+
+                const orderData = await orderResponse.json();
+
+                if (!orderResponse.ok) {
+                    throw new Error(orderData.error || 'Error al crear el pedido');
+                }
+
+                const orderId = orderData.orderNumber;
                 setOrderNumber(orderId);
 
-                const newOrder: UserOrder = {
-                    id: orderId,
-                    date: new Date().toISOString(),
-                    status: 'pending',
-                    items: items.map(item => ({
-                        productName: item.productName,
-                        variantName: item.variantName,
-                        quantity: item.quantity,
-                        price: item.price,
-                        image: item.image
-                    })),
-                    shipping,
-                    total,
-                    shippingAddress: {
-                        address: formData.address,
-                        city: formData.city,
-                        state: formData.state,
-                        zipCode: formData.zipCode
-                    }
-                };
-
-                login(formData.email, formData.firstName, formData.lastName, formData.phone);
-
-                setTimeout(() => {
-                    addOrder(newOrder);
-                }, 100);
+                // Save as guest if not authenticated
+                if (!user || user.isGuest) {
+                    setGuestUser(formData.email, formData.firstName, formData.lastName, formData.phone);
+                } else {
+                    // Refresh user to get updated orders
+                    refreshUser();
+                }
 
                 if (formData.paymentMethod === 'whatsapp') {
                     const message = generateWhatsAppMessage(orderId);
-                    const whatsappUrl = `https://wa.me/5215519915154?text=${message}`;
+                    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
                     window.open(whatsappUrl, '_blank');
                 }
 
-                setTimeout(() => {
-                    clearCart();
-                    setOrderComplete(true);
-                    setIsSubmitting(false);
-                }, 1000);
+                clearCart();
+                setOrderComplete(true);
+                setIsSubmitting(false);
             }
         } catch (error: any) {
             console.error('Checkout error:', error);

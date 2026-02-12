@@ -164,6 +164,14 @@ const PLAN_LABELS: Record<string, string> = {
 
 export default function MembresiasPage() {
     const [isAnnual, setIsAnnual] = useState(false);
+    const [whatsappNumber, setWhatsappNumber] = useState('5215519915154');
+
+    useEffect(() => {
+        fetch('/api/config?keys=whatsapp_number')
+            .then(r => r.json())
+            .then(data => { if (data.whatsapp_number) setWhatsappNumber(data.whatsapp_number); })
+            .catch(() => {});
+    }, []);
     const [openFaq, setOpenFaq] = useState<number | null>(0);
     const { user } = useUser();
 
@@ -534,7 +542,7 @@ export default function MembresiasPage() {
                         te asesoramos para elegir el plan perfecto para ti.
                     </p>
                     <Link
-                        href="https://wa.me/5215519915154?text=Hola,%20tengo%20dudas%20sobre%20las%20membresías"
+                        href={`https://wa.me/${whatsappNumber}?text=Hola,%20tengo%20dudas%20sobre%20las%20membresías`}
                         target="_blank"
                         className="btn"
                     >

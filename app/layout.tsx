@@ -6,6 +6,7 @@ import Footer from "@/components/layout/Footer";
 import { CartProvider } from "@/lib/CartContext";
 import { UserProvider } from "@/lib/UserContext";
 import CartDrawer from "@/components/CartDrawer";
+import { getConfig } from "@/lib/config";
 
 const inter = Inter({
   variable: "--font-body",
@@ -31,11 +32,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const whatsappNumber = await getConfig('whatsapp_number');
+
   return (
     <html lang="es-MX" suppressHydrationWarning>
       <body
@@ -45,9 +48,9 @@ export default function RootLayout({
       >
         <UserProvider>
           <CartProvider>
-            <Header />
+            <Header whatsappNumber={whatsappNumber} />
             <main>{children}</main>
-            <Footer />
+            <Footer whatsappNumber={whatsappNumber} />
             <CartDrawer />
           </CartProvider>
         </UserProvider>

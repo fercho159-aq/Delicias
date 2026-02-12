@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { payment as mpPayment, getMPSubscription } from '@/lib/mercadopago';
+import { sendPaymentConfirmedEmail, buildOrderEmailData } from '@/lib/email';
 
 /**
  * Verify the Mercado Pago webhook signature using HMAC-SHA256.
@@ -255,7 +256,26 @@ export async function POST(request: NextRequest) {
                     await deductInventory(externalReference);
                 } catch (inventoryError) {
                     console.error(`Webhook: Failed to deduct inventory for order ${externalReference}:`, inventoryError);
-                    // Don't fail the webhook response - the order is already updated
+                }
+
+                // Send payment confirmed email
+                try {
+                    const fullOrder = await prisma.order.findUnique({
+                        where: { orderNumber: externalReference },
+                        include: {
+                            user: true,
+                            items: true,
+                            shippingAddress: true,
+                        },
+                    });
+                    if (fullOrder && fullOrder.user) {
+                        const emailData = buildOrderEmailData(fullOrder);
+                        sendPaymentConfirmedEmail(emailData).catch(err =>
+                            console.error(`Webhook: Failed to send payment email for ${externalReference}:`, err)
+                        );
+                    }
+                } catch (emailError) {
+                    console.error(`Webhook: Failed to send payment email for ${externalReference}:`, emailError);
                 }
             }
         }

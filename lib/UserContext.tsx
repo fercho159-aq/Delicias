@@ -1,11 +1,13 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 
 export interface UserOrder {
     id: string;
     date: string;
-    status: 'pending' | 'confirmed' | 'shipped' | 'delivered';
+    status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+    paymentStatus?: string;
+    paymentMethod?: string;
     items: {
         productName: string;
         variantName: string;
@@ -14,109 +16,166 @@ export interface UserOrder {
         image: string | null;
     }[];
     shipping: number;
+    discount?: number;
     total: number;
     shippingAddress: {
         address: string;
         city: string;
         state: string;
         zipCode: string;
-    };
+    } | null;
 }
 
 export interface UserData {
-    id: string;
+    id: number;
     email: string;
     firstName: string;
     lastName: string;
     phone: string;
+    hasPassword: boolean;
     createdAt: string;
     orders: UserOrder[];
+    isGuest?: boolean;
 }
 
 interface UserContextType {
     user: UserData | null;
     isLoading: boolean;
-    login: (email: string, firstName: string, lastName: string, phone: string) => void;
-    logout: () => void;
-    updateProfile: (data: Partial<UserData>) => void;
-    addOrder: (order: UserOrder) => void;
+    login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+    register: (data: { email: string; password: string; firstName: string; lastName: string; phone?: string }) => Promise<{ success: boolean; error?: string }>;
+    logout: () => Promise<void>;
+    refreshUser: () => Promise<void>;
+    setGuestUser: (email: string, firstName: string, lastName: string, phone: string) => void;
+    updateProfile: (data: { firstName?: string; lastName?: string; phone?: string; password?: string }) => Promise<{ success: boolean; error?: string }>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-const USER_STORAGE_KEY = 'delicias-user';
+const GUEST_STORAGE_KEY = 'delicias-guest';
 
 export function UserProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<UserData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Load user from localStorage on mount
-    useEffect(() => {
-        const savedUser = localStorage.getItem(USER_STORAGE_KEY);
-        if (savedUser) {
-            try {
-                setUser(JSON.parse(savedUser));
-            } catch (e) {
-                console.error('Error loading user:', e);
+    const refreshUser = useCallback(async () => {
+        try {
+            const res = await fetch('/api/customer/me');
+            const data = await res.json();
+            if (data.user) {
+                setUser({ ...data.user, isGuest: false });
+                // Clear guest data if we have a real session
+                localStorage.removeItem(GUEST_STORAGE_KEY);
+            } else {
+                // No server session — check for guest data in localStorage
+                const guest = localStorage.getItem(GUEST_STORAGE_KEY);
+                if (guest) {
+                    try {
+                        setUser({ ...JSON.parse(guest), isGuest: true });
+                    } catch {
+                        localStorage.removeItem(GUEST_STORAGE_KEY);
+                        setUser(null);
+                    }
+                } else {
+                    setUser(null);
+                }
+            }
+        } catch {
+            // On network error, fall back to guest
+            const guest = localStorage.getItem(GUEST_STORAGE_KEY);
+            if (guest) {
+                try {
+                    setUser({ ...JSON.parse(guest), isGuest: true });
+                } catch {
+                    setUser(null);
+                }
+            } else {
+                setUser(null);
             }
         }
-        setIsLoading(false);
     }, []);
 
-    // Save user to localStorage when data changes
+    // Load user on mount
     useEffect(() => {
-        if (!isLoading && user) {
-            localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
-        }
-    }, [user, isLoading]);
+        refreshUser().finally(() => setIsLoading(false));
+    }, [refreshUser]);
 
-    const login = (email: string, firstName: string, lastName: string, phone: string) => {
-        // Check if user already exists with this email
-        const savedUser = localStorage.getItem(USER_STORAGE_KEY);
-        if (savedUser) {
-            const existingUser = JSON.parse(savedUser);
-            if (existingUser.email === email) {
-                // Update existing user info
-                setUser({
-                    ...existingUser,
-                    firstName,
-                    lastName,
-                    phone
-                });
-                return;
+    const login = async (email: string, password: string) => {
+        try {
+            const res = await fetch('/api/customer/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                return { success: false, error: data.error || 'Error al iniciar sesión.' };
             }
+            await refreshUser();
+            return { success: true };
+        } catch {
+            return { success: false, error: 'Error de conexión.' };
         }
+    };
 
-        // Create new user
-        const newUser: UserData = {
-            id: `user-${Date.now()}`,
+    const register = async (regData: { email: string; password: string; firstName: string; lastName: string; phone?: string }) => {
+        try {
+            const res = await fetch('/api/customer/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(regData),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                return { success: false, error: data.error || 'Error al registrar.' };
+            }
+            await refreshUser();
+            return { success: true };
+        } catch {
+            return { success: false, error: 'Error de conexión.' };
+        }
+    };
+
+    const logout = async () => {
+        try {
+            await fetch('/api/customer/logout', { method: 'POST' });
+        } catch {
+            // ignore
+        }
+        localStorage.removeItem(GUEST_STORAGE_KEY);
+        setUser(null);
+    };
+
+    const setGuestUser = (email: string, firstName: string, lastName: string, phone: string) => {
+        const guestData: UserData = {
+            id: 0,
             email,
             firstName,
             lastName,
             phone,
+            hasPassword: false,
             createdAt: new Date().toISOString(),
-            orders: []
+            orders: [],
+            isGuest: true,
         };
-        setUser(newUser);
+        localStorage.setItem(GUEST_STORAGE_KEY, JSON.stringify(guestData));
+        setUser(guestData);
     };
 
-    const logout = () => {
-        setUser(null);
-        localStorage.removeItem(USER_STORAGE_KEY);
-    };
-
-    const updateProfile = (data: Partial<UserData>) => {
-        if (user) {
-            setUser({ ...user, ...data });
-        }
-    };
-
-    const addOrder = (order: UserOrder) => {
-        if (user) {
-            setUser({
-                ...user,
-                orders: [order, ...user.orders]
+    const updateProfile = async (data: { firstName?: string; lastName?: string; phone?: string; password?: string }) => {
+        try {
+            const res = await fetch('/api/customer/profile', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
             });
+            const result = await res.json();
+            if (!res.ok) {
+                return { success: false, error: result.error || 'Error al actualizar.' };
+            }
+            await refreshUser();
+            return { success: true };
+        } catch {
+            return { success: false, error: 'Error de conexión.' };
         }
     };
 
@@ -126,9 +185,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
                 user,
                 isLoading,
                 login,
+                register,
                 logout,
+                refreshUser,
+                setGuestUser,
                 updateProfile,
-                addOrder,
             }}
         >
             {children}

@@ -93,8 +93,8 @@ export default async function Home() {
       <section className="hero-section">
         <div className="hero-background">
           <Image
-            src="/hero-nuts.png"
-            alt="Nueces y frutos secos premium"
+            src="/hero-valentines.png"
+            alt="San Valentín - Delicias del Campo"
             fill
             priority
             style={{ objectFit: "cover" }}

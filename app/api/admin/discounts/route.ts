@@ -50,9 +50,16 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        if (body.value === undefined || body.value === null || Number(body.value) < 0) {
+        if (body.type !== 'FREE_SHIPPING' && (body.value === undefined || body.value === null || Number(body.value) <= 0)) {
             return NextResponse.json(
                 { error: 'El valor del descuento es requerido y debe ser positivo' },
+                { status: 400 }
+            );
+        }
+
+        if (body.type === 'PERCENTAGE' && Number(body.value) > 100) {
+            return NextResponse.json(
+                { error: 'El porcentaje de descuento no puede ser mayor a 100' },
                 { status: 400 }
             );
         }

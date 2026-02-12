@@ -147,10 +147,32 @@ export async function PUT(
                         lastName: true,
                     },
                 },
-                items: true,
+                items: {
+                    include: { variant: true }
+                },
                 shippingAddress: true,
             },
         });
+
+        // Restore inventory when order is cancelled (if previously paid/confirmed)
+        if (body.status === 'CANCELLED' && existing.status !== 'CANCELLED' && existing.paymentStatus === 'PAID') {
+            try {
+                await prisma.$transaction(
+                    order.items.map((item: any) =>
+                        prisma.productVariant.update({
+                            where: { id: item.variantId },
+                            data: {
+                                stock: { increment: item.quantity },
+                                inStock: true,
+                            },
+                        })
+                    )
+                );
+                console.log(`Inventario restaurado para orden ${orderId}`);
+            } catch (invError) {
+                console.error(`Error al restaurar inventario para orden ${orderId}:`, invError);
+            }
+        }
 
         return NextResponse.json(order);
     } catch (error) {
