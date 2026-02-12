@@ -5,8 +5,8 @@ import { Filter, ChevronRight } from 'lucide-react';
 import './paquetes.css';
 
 export const metadata = {
-    title: 'Paquetes | Las Delicias del Campo',
-    description: 'Explora nuestros paquetes especiales con la mejor selección de productos.',
+    title: 'Paquetes Especiales',
+    description: 'Paquetes y cajas de regalo con la mejor selección de nueces, semillas y frutos secos. Ideales para regalar o disfrutar en familia.',
 };
 
 // Re-validate every hour

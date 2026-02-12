@@ -13,8 +13,8 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
     const title = category.charAt(0).toUpperCase() + category.slice(1);
 
     return {
-        title: `${title} | Las Delicias del Campo`,
-        description: `Explora nuestra selección de ${category}.`,
+        title: title.replace(/-/g, ' '),
+        description: `Explora nuestra selección de ${category.replace(/-/g, ' ')} de la más alta calidad. Envíos a todo México.`,
     };
 }
 

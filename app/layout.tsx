@@ -20,15 +20,58 @@ const outfit = Outfit({
   display: "swap",
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://lasdeliciasdelcampo.com';
+
 export const metadata: Metadata = {
-  title: "Las Delicias del Campo | Nueces, Semillas y Frutos Secos Premium",
-  description: "Del campo a tu mesa. Descubre nuestra selección premium de frutos secos, semillas, nueces y botanas saludables. Envíos a todo México, compra segura y atención 24/7.",
-  keywords: "frutos secos, nueces, semillas, botanas saludables, snacks naturales, México, CDMX",
+  title: {
+    default: "Las Delicias del Campo | Nueces, Semillas y Frutos Secos Premium",
+    template: "%s | Las Delicias del Campo",
+  },
+  description: "Tienda en línea de nueces, semillas, frutos secos, botanas y cajas de regalo. Envíos a todo México. Más de 100 productos naturales de la más alta calidad, directo del campo a tu mesa.",
+  keywords: [
+    "nueces", "semillas", "frutos secos", "botanas saludables", "snacks naturales",
+    "cacahuates", "almendras", "pistaches", "cajas de regalo", "charolas",
+    "fruta deshidratada", "gomitas", "dulces mexicanos", "tienda en línea",
+    "envíos a todo México", "CDMX", "mayoreo", "Las Delicias del Campo",
+  ],
+  authors: [{ name: "Las Delicias del Campo" }],
+  creator: "Las Delicias del Campo",
+  metadataBase: new URL(siteUrl),
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
-    title: "Las Delicias del Campo - Botanas Saludables Premium",
-    description: "Empresa familiar dedicada a la comercialización de nueces, semillas y frutos secos de la más alta calidad.",
+    title: "Las Delicias del Campo | Nueces, Semillas y Frutos Secos Premium",
+    description: "Tienda en línea de nueces, semillas, frutos secos y cajas de regalo. Envíos a todo México con la mejor calidad y precios.",
     type: "website",
     locale: "es_MX",
+    siteName: "Las Delicias del Campo",
+    url: siteUrl,
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Las Delicias del Campo - Nueces, Semillas y Frutos Secos",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Las Delicias del Campo | Nueces y Frutos Secos Premium",
+    description: "Tienda en línea de nueces, semillas, frutos secos y cajas de regalo. Envíos a todo México.",
+    images: ["/og-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 };
 

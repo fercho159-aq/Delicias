@@ -3,8 +3,8 @@ import { Truck, Award, Heart, Leaf } from 'lucide-react';
 import './nosotros.css';
 
 export const metadata = {
-    title: 'Nosotros | Las Delicias del Campo',
-    description: 'Conoce la historia detrás de Las Delicias del Campo, nuestra misión y compromiso con la calidad.',
+    title: 'Nosotros - Nuestra Historia',
+    description: 'Empresa familiar mexicana con más de 10 años de experiencia en la comercialización de nueces, semillas y frutos secos de la más alta calidad.',
 };
 
 export default function NosotrosPage() {

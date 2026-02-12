@@ -87,8 +87,8 @@ export async function generateMetadata({ params }: PageProps) {
     if (!product) return { title: 'Producto no encontrado' };
 
     return {
-        title: `${product.name} | Las Delicias del Campo`,
-        description: product.description?.substring(0, 160) || `Compra ${product.name} fresco y natural.`
+        title: product.name,
+        description: product.description?.substring(0, 160) || `Compra ${product.name} de la más alta calidad. Envíos a todo México.`,
     };
 }
 

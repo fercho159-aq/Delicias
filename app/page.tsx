@@ -87,8 +87,28 @@ export default async function Home() {
     }),
   ]);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Store",
+    "name": "Las Delicias del Campo",
+    "description": "Tienda en línea de nueces, semillas, frutos secos y cajas de regalo. Envíos a todo México.",
+    "url": process.env.NEXT_PUBLIC_SITE_URL || "https://lasdeliciasdelcampo.com",
+    "logo": `${process.env.NEXT_PUBLIC_SITE_URL || "https://lasdeliciasdelcampo.com"}/logo.png`,
+    "telephone": `+52${siteConfig.whatsapp_number || '5519915154'}`,
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "MX",
+    },
+    "priceRange": "$$",
+    "sameAs": [],
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Hero Section */}
       <section className="hero-section">
         <div className="hero-background">

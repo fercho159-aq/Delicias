@@ -5,8 +5,8 @@ import { Filter, ChevronRight } from 'lucide-react';
 import './productos.css';
 
 export const metadata = {
-    title: 'Productos | Las Delicias del Campo',
-    description: 'Explora nuestra selección de nueces, semillas, frutos secos y más productos naturales de la más alta calidad.',
+    title: 'Productos - Nueces, Semillas y Frutos Secos',
+    description: 'Explora más de 100 productos naturales: nueces, semillas, frutos secos, cacahuates, almendras, gomitas y cajas de regalo. Envíos a todo México.',
 };
 
 // Re-validate every hour
