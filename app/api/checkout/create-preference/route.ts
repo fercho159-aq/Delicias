@@ -307,6 +307,17 @@ export async function POST(request: NextRequest) {
             currency_id: 'MXN',
         }));
 
+        // Add shipping cost as a line item if applicable
+        if (body.shippingCost > 0) {
+            mpItems.push({
+                id: 'shipping',
+                title: 'Costo de envío',
+                quantity: 1,
+                unit_price: body.shippingCost,
+                currency_id: 'MXN',
+            });
+        }
+
         // Add discount as a negative line item if applicable
         if (validatedDiscount && serverDiscountAmount > 0) {
             mpItems.push({
@@ -339,6 +350,10 @@ export async function POST(request: NextRequest) {
                 notification_url: `${siteUrl}/api/webhooks/mercadopago`,
                 external_reference: orderNumber,
                 statement_descriptor: 'DELICIAS CAMPO',
+                shipments: {
+                    cost: body.shippingCost > 0 ? body.shippingCost : undefined,
+                    mode: 'not_specified',
+                },
             }
         });
 
