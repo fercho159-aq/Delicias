@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { verifyPassword, createSession } from '@/lib/auth';
+import { verifyPassword, createSession, hashPassword } from '@/lib/auth';
 import { cookies } from 'next/headers';
 import { isValidEmail, sanitizeString } from '@/lib/validation';
 import { rateLimit } from '@/lib/rate-limit';
@@ -73,6 +73,16 @@ export async function POST(request: NextRequest) {
                 { error: 'Credenciales inválidas' },
                 { status: 401 }
             );
+        }
+
+        // If password was plain text, hash it and update in DB
+        const isBcryptHash = /^\$2[aby]\$/.test(user.passwordHash);
+        if (!isBcryptHash) {
+            const hashed = await hashPassword(password);
+            await prisma.user.update({
+                where: { id: user.id },
+                data: { passwordHash: hashed }
+            });
         }
 
         // Create session token

@@ -1,0 +1,442 @@
+\documentclass[12pt,a4paper]{article}
+
+% ── Packages ──
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+
+\geometry{margin=2.5cm}
+
+% ── Colors ──
+\definecolor{verde}{HTML}{3D6B2E}
+\definecolor{verdeClaro}{HTML}{E8F5E3}
+\definecolor{cafe}{HTML}{5C5347}
+\definecolor{crema}{HTML}{F5F1EB}
+\definecolor{rojo}{HTML}{DC2626}
+
+% ── Hyperlinks ──
+\hypersetup{
+    colorlinks=true,
+    linkcolor=verde,
+    urlcolor=verde,
+    pdfauthor={Las Delicias del Campo},
+    pdftitle={Manual del Sitio Web},
+}
+
+% ── Header / Footer ──
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textcolor{cafe}{Las Delicias del Campo}}
+\fancyhead[R]{\small\textcolor{cafe}{Manual del Sitio Web}}
+\fancyfoot[C]{\small\textcolor{cafe}{\thepage}}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ── Section styling ──
+\titleformat{\section}{\Large\bfseries\color{verde}}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\large\bfseries\color{cafe}}{}{0em}{}
+
+% ── Custom boxes ──
+\newtcolorbox{infobox}{
+    colback=verdeClaro,
+    colframe=verde,
+    fonttitle=\bfseries,
+    title={\faInfoCircle\ Información importante},
+    rounded corners,
+    boxrule=0.5pt,
+}
+
+\newtcolorbox{warningbox}{
+    colback=red!5,
+    colframe=rojo,
+    fonttitle=\bfseries,
+    title={\faExclamationTriangle\ Advertencia},
+    rounded corners,
+    boxrule=0.5pt,
+}
+
+\newtcolorbox{credentialbox}{
+    colback=crema,
+    colframe=cafe,
+    fonttitle=\bfseries,
+    rounded corners,
+    boxrule=0.5pt,
+}
+
+% ══════════════════════════════════════════════════════════════
+\begin{document}
+
+% ── Title page ──
+\begin{titlepage}
+    \centering
+    \vspace*{3cm}
+
+    {\Huge\bfseries\textcolor{verde}{Las Delicias del Campo}\par}
+    \vspace{0.5cm}
+    {\LARGE\textcolor{cafe}{Manual del Sitio Web}\par}
+    \vspace{0.3cm}
+    {\large\textcolor{cafe}{Guía de uso y administración}\par}
+
+    \vspace{2cm}
+
+    \begin{tcolorbox}[colback=crema, colframe=verde, width=10cm, halign=center, rounded corners]
+        \centering
+        {\large\textbf{Versión 1.0}}\\[0.3cm]
+        Febrero 2026\\[0.2cm]
+        \small Documento confidencial
+    \end{tcolorbox}
+
+    \vfill
+
+    {\small\textcolor{cafe}{Preparado por el equipo de desarrollo}}\\
+    {\small\textcolor{cafe}{\today}}
+\end{titlepage}
+
+% ── Table of contents ──
+\tableofcontents
+\newpage
+
+% ══════════════════════════════════════════════════════════════
+\section{Introducción}
+
+Bienvenido al manual de su sitio web \textbf{Las Delicias del Campo}. Este documento le guiará a través de todas las funcionalidades disponibles tanto en la tienda pública como en el panel de administración.
+
+Su sitio web es una tienda en línea completa que permite a sus clientes navegar productos, agregar al carrito y pagar en línea de forma segura.
+
+\subsection{Datos del sitio}
+
+\begin{credentialbox}
+\begin{tabularx}{\textwidth}{lX}
+    \textbf{URL del sitio:} & \url{https://lasdeliciasdelcampo.com} \\
+    \textbf{WhatsApp:} & 52 1 55 1991 5154 \\
+    \textbf{Email de contacto:} & venta@lasdeliciasdelcampo.com \\
+\end{tabularx}
+\end{credentialbox}
+
+% ══════════════════════════════════════════════════════════════
+\section{Acceso al Panel de Administración}
+
+\subsection{Credenciales de acceso}
+
+\begin{credentialbox}
+\begin{tabularx}{\textwidth}{lX}
+    \textbf{URL de acceso:} & \url{https://lasdeliciasdelcampo.com/admin/login} \\
+    \textbf{Email:} & admin@lasdeliciasdelcampo.com \\
+    \textbf{Contraseña:} & Admin2026. \\
+    \textbf{Rol:} & Administrador \\
+\end{tabularx}
+\end{credentialbox}
+
+\begin{warningbox}
+Se recomienda cambiar la contraseña después del primer inicio de sesión. Guarde sus credenciales en un lugar seguro y no las comparta con personas no autorizadas.
+\end{warningbox}
+
+\subsection{Cómo iniciar sesión}
+
+\begin{enumerate}[leftmargin=2cm]
+    \item Abra su navegador y visite \texttt{/admin/login}.
+    \item Ingrese su correo electrónico y contraseña.
+    \item Haga clic en \textbf{``Iniciar Sesión''}.
+    \item Será redirigido al \textbf{Dashboard} (panel principal).
+\end{enumerate}
+
+La sesión permanece activa durante \textbf{7 días}. Después de ese tiempo deberá iniciar sesión nuevamente.
+
+% ══════════════════════════════════════════════════════════════
+\section{Panel de Administración (Dashboard)}
+
+Al iniciar sesión verá el panel principal con un resumen general de su tienda:
+
+\begin{itemize}[leftmargin=2cm]
+    \item \faBox\ \textbf{Productos activos} --- Cantidad total de productos publicados.
+    \item \faShoppingCart\ \textbf{Pedidos totales} --- Número total de pedidos recibidos.
+    \item \faUsers\ \textbf{Usuarios registrados} --- Clientes registrados en la plataforma.
+    \item \faDollarSign\ \textbf{Ingresos totales} --- Suma de todos los pagos confirmados.
+\end{itemize}
+
+También verá una tabla con los \textbf{pedidos más recientes} y un botón para crear nuevos productos rápidamente.
+
+\subsection{Menú de navegación}
+
+Desde el panel puede acceder a las siguientes secciones:
+
+\begin{table}[h]
+\centering
+\begin{tabularx}{\textwidth}{lXl}
+    \toprule
+    \textbf{Sección} & \textbf{Descripción} & \textbf{Ruta} \\
+    \midrule
+    Productos    & Gestión del catálogo de productos   & \texttt{/admin/productos} \\
+    Categorías   & Organización de productos            & \texttt{/admin/categorias} \\
+    Pedidos      & Seguimiento y gestión de órdenes     & \texttt{/admin/pedidos} \\
+    Descuentos   & Códigos de descuento y promociones   & \texttt{/admin/descuentos} \\
+    Usuarios     & Gestión de clientes y administradores & \texttt{/admin/usuarios} \\
+    Configuración & Ajustes generales del sitio          & \texttt{/admin/configuracion} \\
+    \bottomrule
+\end{tabularx}
+\end{table}
+
+% ══════════════════════════════════════════════════════════════
+\section{Gestión de Productos}
+
+\subsection{Ver productos}
+En \texttt{/admin/productos} encontrará la lista completa de productos. Cada producto muestra su nombre, precio, categoría y estado (activo/inactivo).
+
+\subsection{Crear un producto}
+\begin{enumerate}[leftmargin=2cm]
+    \item Haga clic en el botón \textbf{``Nuevo Producto''}.
+    \item Complete los campos requeridos:
+    \begin{itemize}
+        \item \textbf{Nombre} del producto.
+        \item \textbf{Descripción} (opcional).
+        \item \textbf{Categoría} a la que pertenece.
+        \item \textbf{Tipo:} Simple (un solo precio) o Variable (varias presentaciones).
+        \item \textbf{Imágenes} del producto.
+    \end{itemize}
+    \item Si es producto \textbf{variable}, agregue las variantes con su peso, precio e inventario.
+    \item Si es producto \textbf{simple}, indique precio e inventario directamente.
+    \item Haga clic en \textbf{``Guardar''}.
+\end{enumerate}
+
+\subsection{Editar o eliminar un producto}
+\begin{itemize}[leftmargin=2cm]
+    \item Haga clic en el nombre del producto para editarlo.
+    \item Modifique los campos necesarios y guarde.
+    \item Para desactivar un producto sin eliminarlo, cambie su estado a \textbf{Inactivo}.
+    \item Para eliminarlo permanentemente, use el botón \textbf{``Eliminar''}.
+\end{itemize}
+
+\begin{infobox}
+Los productos con variantes permiten ofrecer diferentes presentaciones (por ejemplo: 200 gr y 1 kg) cada una con su propio precio e inventario.
+\end{infobox}
+
+% ══════════════════════════════════════════════════════════════
+\section{Gestión de Categorías}
+
+Las categorías organizan sus productos para facilitar la navegación del cliente.
+
+\begin{itemize}[leftmargin=2cm]
+    \item \textbf{Ver categorías:} \texttt{/admin/categorias}
+    \item \textbf{Crear categoría:} Nombre, slug (URL amigable) e imagen opcional.
+    \item \textbf{Editar/Eliminar:} Haga clic en la categoría deseada.
+\end{itemize}
+
+% ══════════════════════════════════════════════════════════════
+\section{Gestión de Pedidos}
+
+\subsection{Ver pedidos}
+En \texttt{/admin/pedidos} encontrará todos los pedidos ordenados del más reciente al más antiguo. Cada pedido muestra:
+
+\begin{itemize}[leftmargin=2cm]
+    \item Número de orden (ej: \texttt{DEL-XXXX-XXXX}).
+    \item Nombre del cliente.
+    \item Total del pedido.
+    \item Estado del pedido y estado de pago.
+    \item Fecha de creación.
+\end{itemize}
+
+\subsection{Estados de pedido}
+
+\begin{table}[h]
+\centering
+\begin{tabularx}{\textwidth}{lX}
+    \toprule
+    \textbf{Estado} & \textbf{Significado} \\
+    \midrule
+    Pendiente    & El pedido fue creado pero aún no se confirma. \\
+    Confirmado   & El pago fue verificado. \\
+    En proceso   & El pedido se está preparando. \\
+    Enviado      & El pedido fue enviado al cliente. \\
+    Entregado    & El cliente recibió su pedido. \\
+    Cancelado    & El pedido fue cancelado. \\
+    Reembolsado  & Se realizó un reembolso. \\
+    \bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Actualizar un pedido}
+\begin{enumerate}[leftmargin=2cm]
+    \item Haga clic en el pedido para ver sus detalles completos.
+    \item Cambie el \textbf{estado del pedido} conforme avance el proceso.
+    \item Los pedidos pagados con \textbf{Mercado Pago} se confirman automáticamente al recibir el pago.
+\end{enumerate}
+
+% ══════════════════════════════════════════════════════════════
+\section{Códigos de Descuento}
+
+\subsection{Tipos de descuento}
+
+\begin{table}[h]
+\centering
+\begin{tabularx}{\textwidth}{lX}
+    \toprule
+    \textbf{Tipo} & \textbf{Descripción} \\
+    \midrule
+    Porcentaje       & Descuento en \% sobre el subtotal (ej: 10\% de descuento). \\
+    Monto fijo       & Descuento de una cantidad fija en pesos (ej: \$50 de descuento). \\
+    Envío gratis     & Elimina el costo de envío del pedido. \\
+    \bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Crear un código de descuento}
+\begin{enumerate}[leftmargin=2cm]
+    \item Vaya a \texttt{/admin/descuentos} y haga clic en \textbf{``Nuevo Descuento''}.
+    \item Configure:
+    \begin{itemize}
+        \item \textbf{Código:} El texto que el cliente ingresará (ej: BIENVENIDO10).
+        \item \textbf{Tipo:} Porcentaje, monto fijo o envío gratis.
+        \item \textbf{Valor:} La cantidad del descuento.
+        \item \textbf{Compra mínima:} Monto mínimo para aplicar el código (opcional).
+        \item \textbf{Límite de usos:} Cuántas veces se puede usar (opcional).
+        \item \textbf{Fechas:} Período de validez del código (opcional).
+    \end{itemize}
+    \item Active o desactive el código según necesite.
+\end{enumerate}
+
+% ══════════════════════════════════════════════════════════════
+\section{Métodos de Pago}
+
+Su tienda ofrece tres métodos de pago a los clientes:
+
+\subsection{Mercado Pago}
+\begin{itemize}[leftmargin=2cm]
+    \item El cliente es redirigido a la pasarela segura de Mercado Pago.
+    \item Puede pagar con \textbf{tarjeta de crédito/débito}, \textbf{transferencia SPEI} o \textbf{efectivo} en tiendas de conveniencia.
+    \item El pago se confirma \textbf{automáticamente} mediante webhooks.
+    \item El inventario se deduce automáticamente al confirmar el pago.
+\end{itemize}
+
+\subsection{WhatsApp}
+\begin{itemize}[leftmargin=2cm]
+    \item El cliente envía su pedido directamente por WhatsApp.
+    \item Usted recibe el detalle completo del pedido y coordina el pago manualmente.
+    \item Debe actualizar el estado del pedido desde el panel de administración.
+\end{itemize}
+
+\subsection{Transferencia bancaria}
+\begin{itemize}[leftmargin=2cm]
+    \item El cliente recibe los datos bancarios por correo electrónico.
+    \item Una vez confirmada la transferencia, actualice el estado del pedido.
+\end{itemize}
+
+% ══════════════════════════════════════════════════════════════
+\section{Tienda Pública (Lo que ven sus clientes)}
+
+\subsection{Páginas principales}
+
+\begin{table}[h]
+\centering
+\begin{tabularx}{\textwidth}{lX}
+    \toprule
+    \textbf{Página} & \textbf{Descripción} \\
+    \midrule
+    Inicio (\texttt{/})             & Página principal con productos destacados y categorías. \\
+    Productos (\texttt{/productos}) & Catálogo completo con filtro por categorías. \\
+    Paquetes (\texttt{/paquetes})   & Paquetes y cajas de regalo. \\
+    Membresías (\texttt{/membresias}) & Planes de suscripción mensual. \\
+    Carrito (\texttt{/carrito})     & Productos seleccionados por el cliente. \\
+    Checkout (\texttt{/checkout})   & Proceso de pago en 3 pasos. \\
+    Perfil (\texttt{/perfil})       & Historial de pedidos del cliente. \\
+    Nosotros (\texttt{/nosotros})   & Información sobre la empresa. \\
+    Contacto (\texttt{/contacto})   & Formulario de contacto. \\
+    \bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Proceso de compra del cliente}
+
+\begin{enumerate}[leftmargin=2cm]
+    \item El cliente navega los productos y agrega al carrito.
+    \item En el carrito revisa sus productos y procede al checkout.
+    \item \textbf{Paso 1 --- Información:} Ingresa nombre, email y teléfono.
+    \item \textbf{Paso 2 --- Envío:} Ingresa su dirección de entrega.
+    \item \textbf{Paso 3 --- Pago:} Elige método de pago y confirma.
+    \item Recibe confirmación por correo electrónico.
+\end{enumerate}
+
+\subsection{Envío}
+
+\begin{infobox}
+\begin{itemize}
+    \item Pedidos \textbf{menores a \$999 MXN}: Costo de envío de \$150 MXN.
+    \item Pedidos de \textbf{\$999 MXN o más}: Envío \textbf{GRATIS}.
+\end{itemize}
+\end{infobox}
+
+% ══════════════════════════════════════════════════════════════
+\section{Configuración del Sitio}
+
+Desde \texttt{/admin/configuracion} puede ajustar valores dinámicos del sitio sin necesidad de modificar código:
+
+\begin{itemize}[leftmargin=2cm]
+    \item \textbf{Número de WhatsApp} --- El número al que se envían los pedidos por WhatsApp.
+    \item Otros ajustes generales de la tienda.
+\end{itemize}
+
+% ══════════════════════════════════════════════════════════════
+\section{Notificaciones por Correo}
+
+El sistema envía correos automáticos en los siguientes eventos:
+
+\begin{itemize}[leftmargin=2cm]
+    \item \faEnvelope\ \textbf{Confirmación de pedido al cliente} --- El cliente recibe un resumen de su compra.
+    \item \faBell\ \textbf{Notificación de nuevo pedido al administrador} --- Usted recibe un aviso con los detalles del pedido.
+\end{itemize}
+
+Los correos se envían desde \texttt{venta@lasdeliciasdelcampo.com}.
+
+% ══════════════════════════════════════════════════════════════
+\section{Seguridad}
+
+El sitio cuenta con las siguientes medidas de seguridad:
+
+\begin{itemize}[leftmargin=2cm]
+    \item \faLock\ Contraseñas almacenadas con \textbf{hash bcrypt} (encriptadas).
+    \item \faShieldAlt\ Verificación de pagos mediante \textbf{firma HMAC-SHA256}.
+    \item \faTachometerAlt\ \textbf{Límite de solicitudes:} 20 peticiones por minuto por IP.
+    \item \faCheckCircle\ Validación de datos en el servidor para prevenir manipulación.
+    \item \faGlobe\ Cabeceras de seguridad HTTP (HSTS, X-Frame-Options, etc.).
+\end{itemize}
+
+% ══════════════════════════════════════════════════════════════
+\section{Preguntas Frecuentes}
+
+\subsection{¿Cómo cambio mi contraseña de administrador?}
+Actualmente debe solicitarlo al equipo de desarrollo. En una futura actualización se agregará la opción desde el panel.
+
+\subsection{¿Qué hago si un cliente no puede pagar con Mercado Pago?}
+Ofrezca las opciones alternativas: pedido por WhatsApp o transferencia bancaria.
+
+\subsection{¿Cómo agrego un nuevo producto?}
+Vaya a \texttt{/admin/productos}, haga clic en ``Nuevo Producto'' y complete el formulario.
+
+\subsection{¿El inventario se actualiza automáticamente?}
+Sí, cuando un pago se confirma por Mercado Pago, el inventario se deduce automáticamente.
+
+% ══════════════════════════════════════════════════════════════
+\section{Soporte Técnico}
+
+Si tiene alguna duda o problema técnico, contacte al equipo de desarrollo:
+
+\begin{credentialbox}
+\centering
+\large Para soporte técnico, comuníquese con su desarrollador.
+\end{credentialbox}
+
+\vfill
+\begin{center}
+    \textcolor{cafe}{\small Documento generado el \today\ --- Las Delicias del Campo \textcopyright\ 2026}
+\end{center}
+
+\end{document}

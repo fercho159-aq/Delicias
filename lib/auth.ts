@@ -22,8 +22,16 @@ export async function hashPassword(password: string): Promise<string> {
     return bcrypt.hash(password, 12);
 }
 
-export async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
-    return bcrypt.compare(password, hashedPassword);
+export async function verifyPassword(password: string, storedPassword: string): Promise<boolean> {
+    // Bcrypt hashes always start with "$2a$" or "$2b$"
+    const isBcryptHash = /^\$2[aby]\$/.test(storedPassword);
+
+    if (isBcryptHash) {
+        return bcrypt.compare(password, storedPassword);
+    }
+
+    // Plain text comparison — return true if matches
+    return password === storedPassword;
 }
 
 export async function createSession(user: { id: number; email: string; role: string }): Promise<string> {
