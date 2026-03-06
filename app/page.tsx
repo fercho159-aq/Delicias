@@ -107,8 +107,8 @@ export default async function Home() {
       <section className="hero-section">
         <div className="hero-background">
           <Image
-            src="/hero-valentines.png"
-            alt="San Valentín - Las Delicias del Campo"
+            src="/hero-temporada.jpg"
+            alt="La temporada más fresca comienza aquí - Las Delicias del Campo"
             fill
             priority
             style={{ objectFit: "cover" }}
