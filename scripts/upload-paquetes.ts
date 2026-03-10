@@ -89,7 +89,7 @@ const paquetes = [
       'Mix botana grande - papa (500 gr)',
       'Producto sorpresa del mes - patatina (500 gr)',
     ],
-    imageFolder: null, // no image folder provided
+    imageFolder: 'Combo Familiar Grande',
   },
   {
     name: 'Combo Fiesta',
@@ -109,7 +109,7 @@ const paquetes = [
       'Ajonjolí garapiñado (500 gr)',
       'Arándano enchilado (500 gr)',
     ],
-    imageFolder: null, // no image folder provided
+    imageFolder: 'Combo fiesta',
   },
 ];
 
