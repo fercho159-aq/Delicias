@@ -71,6 +71,14 @@
     object-fit: contain;
 }
 
+.image-disclaimer {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    text-align: center;
+    margin: 0;
+    font-style: italic;
+}
+
 /* Información del producto */
 .product-info-column {
     display: flex;

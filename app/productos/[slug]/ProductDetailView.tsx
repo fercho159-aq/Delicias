@@ -162,6 +162,7 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
                             ))}
                         </div>
                     )}
+                    <p className="image-disclaimer">*Las imágenes son solo ilustrativas. El producto puede variar.</p>
                 </div>
 
                 {/* Columna Derecha: Información */}

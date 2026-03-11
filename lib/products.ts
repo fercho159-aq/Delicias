@@ -60,7 +60,7 @@ export async function getLatestProducts(limit = 12) {
                 take: 1
             }
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: [{ featured: 'desc' }, { position: 'asc' }, { createdAt: 'desc' }],
         take: limit
     });
 

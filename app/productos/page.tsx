@@ -36,6 +36,7 @@ async function getProducts(categorySlug?: string) {
             },
             orderBy: [
                 { featured: 'desc' },
+                { position: 'asc' },
                 { name: 'asc' }
             ]
         });
