@@ -11,7 +11,6 @@ import './Header.css';
 const Header = ({ whatsappNumber = '5215519915154' }: { whatsappNumber?: string }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [isCatalogDropdownOpen, setIsCatalogDropdownOpen] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const { itemCount, openCart } = useCart();
     const { user } = useUser();
@@ -55,34 +54,9 @@ const Header = ({ whatsappNumber = '5215519915154' }: { whatsappNumber?: string 
                         </div>
                     </div>
 
-                    <Link href="/paquetes" className="nav-link">
-                        Paquetes
-                    </Link>
                     <Link href="/nosotros" className="nav-link">
                         Nosotros
                     </Link>
-                    <Link href="/membresias" className="nav-link" style={{ color: '#22c55e', fontWeight: 600 }}>
-                        Membresías
-                    </Link>
-
-                    <div
-                        className="nav-item-container"
-                        onMouseEnter={() => setIsCatalogDropdownOpen(true)}
-                        onMouseLeave={() => setIsCatalogDropdownOpen(false)}
-                    >
-                        <span className="nav-link" style={{ cursor: 'pointer' }}>
-                            Catálogo
-                            <svg className="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="m6 9 6 6 6-6" />
-                            </svg>
-                        </span>
-
-                        {/* Dropdown Menu */}
-                        <div className={`nav-dropdown ${isCatalogDropdownOpen ? 'show' : ''}`}>
-                            <a href="http://lasdeliciasdelcampo.com/wp-content/uploads/2025/03/Paquetes-Las-Delicias-del-Campo.pdf" target="_blank" rel="noopener noreferrer" className="dropdown-link">Paquetes</a>
-                            <a href="http://lasdeliciasdelcampo.com/wp-content/uploads/2025/12/botana-saludable.pdf" target="_blank" rel="noopener noreferrer" className="dropdown-link">Productos</a>
-                        </div>
-                    </div>
                     <Link href="/contacto" className="nav-link">
                         Contacto
                     </Link>
@@ -162,17 +136,8 @@ const Header = ({ whatsappNumber = '5215519915154' }: { whatsappNumber?: string 
                     <Link href="/tienda/canasta" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Canastas</Link>
                 </div>
 
-                <Link href="/paquetes" className="nav-link-mobile" onClick={() => setIsMobileMenuOpen(false)}>Paquetes</Link>
                 <Link href="/nosotros" className="nav-link-mobile" onClick={() => setIsMobileMenuOpen(false)}>Nosotros</Link>
-
-                <div className="nav-mobile-group">
-                    <span className="nav-mobile-title">Catálogo</span>
-                    <a href="http://lasdeliciasdelcampo.com/wp-content/uploads/2025/03/Paquetes-Las-Delicias-del-Campo.pdf" target="_blank" rel="noopener noreferrer" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Paquetes (PDF)</a>
-                    <a href="http://lasdeliciasdelcampo.com/wp-content/uploads/2025/12/botana-saludable.pdf" target="_blank" rel="noopener noreferrer" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Productos (PDF)</a>
-                </div>
-
                 <Link href="/contacto" className="nav-link-mobile" onClick={() => setIsMobileMenuOpen(false)}>Contacto</Link>
-                <Link href="/membresias" className="nav-link-mobile" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#22c55e', fontWeight: 600 }}>Membresías</Link>
                 <a
                     href={`https://wa.me/${whatsappNumber}`}
                     target="_blank"

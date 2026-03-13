@@ -117,6 +117,19 @@ export function ContactPageClient() {
                             </div>
                         </div>
 
+                        <div className="contact-map">
+                            <iframe
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d240863.95159590958!2d-99.32939019628498!3d19.390519038498474!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85ce0026db097507%3A0x54061076265ee841!2sCiudad%20de%20M%C3%A9xico%2C%20CDMX%2C%20M%C3%A9xico!5e0!3m2!1ses-419!2smx!4v1710000000000!5m2!1ses-419!2smx"
+                                width="100%"
+                                height="250"
+                                style={{ border: 0, borderRadius: '12px' }}
+                                allowFullScreen
+                                loading="lazy"
+                                referrerPolicy="no-referrer-when-downgrade"
+                                title="Ubicación Las Delicias del Campo"
+                            />
+                        </div>
+
                         <a
                             href={`https://wa.me/${whatsappNumber}?text=Hola,%20me%20gustaría%20más%20información%20sobre%20sus%20productos`}
                             target="_blank"

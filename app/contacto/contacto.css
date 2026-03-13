@@ -111,6 +111,17 @@
     height: 24px;
 }
 
+/* Contact Map */
+.contact-map {
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+
+.contact-map iframe {
+    display: block;
+}
+
 /* Contact Form */
 .contacto-form-container {
     background: white;
