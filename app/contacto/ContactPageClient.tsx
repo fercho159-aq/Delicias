@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MapPin, Phone, Mail, Clock, CheckCircle } from 'lucide-react';
 import './contacto.css';
 
@@ -17,12 +17,12 @@ export function ContactPageClient() {
     const [error, setError] = useState('');
     const [whatsappNumber, setWhatsappNumber] = useState('5215519915154');
 
-    useState(() => {
+    useEffect(() => {
         fetch('/api/config?keys=whatsapp_number')
             .then(r => r.json())
             .then(data => { if (data.whatsapp_number) setWhatsappNumber(data.whatsapp_number); })
             .catch(() => {});
-    });
+    }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
