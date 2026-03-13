@@ -34,6 +34,7 @@ interface CheckoutBody {
         state: string;
         zipCode: string;
     };
+    shippingMethod?: 'delivery' | 'pickup';
     notes: string;
     subtotal: number;
     shippingCost: number;
@@ -81,14 +82,17 @@ export async function POST(request: NextRequest) {
         }
 
         // Validate shipping fields
-        if (!sanitizeString(body.shipping?.address)) {
-            errors.push('La dirección de envío es requerida.');
-        }
-        if (!sanitizeString(body.shipping?.city)) {
-            errors.push('La ciudad es requerida.');
-        }
-        if (!body.shipping?.zipCode || !isValidZipCode(body.shipping.zipCode)) {
-            errors.push('El código postal no es válido (debe tener entre 4 y 6 dígitos).');
+        const isPickup = body.shippingMethod === 'pickup';
+        if (!isPickup) {
+            if (!sanitizeString(body.shipping?.address)) {
+                errors.push('La dirección de envío es requerida.');
+            }
+            if (!sanitizeString(body.shipping?.city)) {
+                errors.push('La ciudad es requerida.');
+            }
+            if (!body.shipping?.zipCode || !isValidZipCode(body.shipping.zipCode)) {
+                errors.push('El código postal no es válido (debe tener entre 4 y 6 dígitos).');
+            }
         }
 
         // Validate totals

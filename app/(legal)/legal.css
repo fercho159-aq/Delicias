@@ -1,0 +1,114 @@
+.legal-page {
+    padding: 3rem 0 5rem;
+    min-height: 60vh;
+}
+
+.legal-page .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.legal-page h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-text, #3d3a36);
+    margin-bottom: 0.5rem;
+}
+
+.legal-page .legal-updated {
+    font-size: 0.875rem;
+    color: var(--color-text-muted, #8b8579);
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-border, #f0ede8);
+}
+
+.legal-page .legal-intro {
+    font-size: 1.05rem;
+    color: var(--color-text-secondary, #5c5347);
+    line-height: 1.7;
+    margin-bottom: 2rem;
+}
+
+.legal-page h2 {
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: var(--color-text, #3d3a36);
+    margin-top: 2.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.legal-page h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-text, #3d3a36);
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.legal-page p {
+    font-size: 0.95rem;
+    color: var(--color-text-secondary, #5c5347);
+    line-height: 1.75;
+    margin-bottom: 1rem;
+}
+
+.legal-page ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem;
+}
+
+.legal-page ul li {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 0.625rem;
+    font-size: 0.95rem;
+    color: var(--color-text-secondary, #5c5347);
+    line-height: 1.65;
+}
+
+.legal-page ul li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.55rem;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--color-primary, #3d6b2e);
+}
+
+.legal-page .contact-box {
+    background-color: var(--color-surface, #faf9f7);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    margin-top: 2rem;
+}
+
+.legal-page .contact-box h3 {
+    margin-top: 0;
+}
+
+.legal-page .contact-box a {
+    color: var(--color-primary, #3d6b2e);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.legal-page .contact-box a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+    .legal-page {
+        padding: 2rem 0 3rem;
+    }
+    .legal-page h1 {
+        font-size: 1.6rem;
+    }
+    .legal-page h2 {
+        font-size: 1.2rem;
+    }
+}

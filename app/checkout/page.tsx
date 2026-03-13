@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -13,7 +13,9 @@ import {
     CheckCircle,
     Shield,
     Lock,
-    User
+    User,
+    Store,
+    Truck
 } from 'lucide-react';
 import './checkout.css';
 
@@ -22,6 +24,7 @@ interface CheckoutFormData {
     firstName: string;
     lastName: string;
     phone: string;
+    shippingMethod: 'delivery' | 'pickup';
     address: string;
     city: string;
     state: string;
@@ -44,6 +47,7 @@ export default function CheckoutPage() {
         firstName: '',
         lastName: '',
         phone: '',
+        shippingMethod: 'delivery',
         address: '',
         city: '',
         state: '',
@@ -69,12 +73,12 @@ export default function CheckoutPage() {
     const [whatsappNumber, setWhatsappNumber] = useState('5215519915154');
 
     // Fetch WhatsApp number from config
-    useState(() => {
+    useEffect(() => {
         fetch('/api/config?keys=whatsapp_number')
             .then(r => r.json())
             .then(data => { if (data.whatsapp_number) setWhatsappNumber(data.whatsapp_number); })
             .catch(() => {});
-    });
+    }, []);
 
     const [discountCode, setDiscountCode] = useState('');
     const [discountLoading, setDiscountLoading] = useState(false);
@@ -87,7 +91,8 @@ export default function CheckoutPage() {
         description: string;
     } | null>(null);
 
-    const baseShipping = subtotal >= 999 ? 0 : 150;
+    const isPickup = formData.shippingMethod === 'pickup';
+    const baseShipping = isPickup ? 0 : (subtotal >= 999 ? 0 : 150);
     const shipping = appliedDiscount?.type === 'FREE_SHIPPING' ? 0 : baseShipping;
     const discountAmount = appliedDiscount
         ? appliedDiscount.type === 'FREE_SHIPPING'
@@ -140,9 +145,15 @@ export default function CheckoutPage() {
         message += `👤 *Cliente:* ${formData.firstName} ${formData.lastName}\n`;
         message += `📧 *Email:* ${formData.email}\n`;
         message += `📱 *Teléfono:* ${formData.phone}\n\n`;
-        message += `📍 *Dirección de envío:*\n`;
-        message += `${formData.address}\n`;
-        message += `${formData.city}, ${formData.state} ${formData.zipCode}\n\n`;
+        if (isPickup) {
+            message += `🏪 *Método de entrega:* Recoger en tienda\n`;
+            message += `📍 Central de Abastos de Iztapalapa, bodega C-57 entre el pasillo 2 y 3.\n\n`;
+        } else {
+            message += `🚚 *Método de entrega:* Envío a domicilio\n`;
+            message += `📍 *Dirección de envío:*\n`;
+            message += `${formData.address}\n`;
+            message += `${formData.city}, ${formData.state} ${formData.zipCode}\n\n`;
+        }
         message += `📦 *Productos:*\n`;
 
         items.forEach(item => {
@@ -171,6 +182,10 @@ export default function CheckoutPage() {
         setIsSubmitting(true);
 
         try {
+            const shippingData = isPickup
+                ? { address: 'Recoger en tienda', city: 'Iztapalapa', state: 'CDMX', zipCode: '09040' }
+                : { address: formData.address, city: formData.city, state: formData.state, zipCode: formData.zipCode };
+
             if (formData.paymentMethod === 'mercadopago') {
                 // Mercado Pago flow: create order in DB + redirect to MP
                 const response = await fetch('/api/checkout/create-preference', {
@@ -191,12 +206,8 @@ export default function CheckoutPage() {
                             lastName: formData.lastName,
                             phone: formData.phone,
                         },
-                        shipping: {
-                            address: formData.address,
-                            city: formData.city,
-                            state: formData.state,
-                            zipCode: formData.zipCode,
-                        },
+                        shipping: shippingData,
+                        shippingMethod: formData.shippingMethod,
                         notes: formData.notes,
                         subtotal,
                         shippingCost: shipping,
@@ -235,12 +246,8 @@ export default function CheckoutPage() {
                             lastName: formData.lastName,
                             phone: formData.phone,
                         },
-                        shipping: {
-                            address: formData.address,
-                            city: formData.city,
-                            state: formData.state,
-                            zipCode: formData.zipCode,
-                        },
+                        shipping: shippingData,
+                        shippingMethod: formData.shippingMethod,
                         notes: formData.notes,
                         subtotal,
                         shippingCost: shipping,
@@ -433,68 +440,125 @@ export default function CheckoutPage() {
                         {/* Step 2: Shipping */}
                         {step === 2 && (
                             <div className="checkout-card">
-                                <h2>Dirección de Envío</h2>
+                                <h2>Método de Entrega</h2>
 
-                                <div className="form-group">
-                                    <label htmlFor="address">Dirección *</label>
-                                    <input
-                                        type="text"
-                                        id="address"
-                                        name="address"
-                                        value={formData.address}
-                                        onChange={handleInputChange}
-                                        placeholder="Calle, número, colonia"
-                                        required
-                                    />
-                                </div>
-
-                                <div className="form-row">
-                                    <div className="form-group">
-                                        <label htmlFor="city">Ciudad *</label>
+                                <div className="shipping-methods">
+                                    <label className={`shipping-option ${formData.shippingMethod === 'delivery' ? 'selected' : ''}`}>
                                         <input
-                                            type="text"
-                                            id="city"
-                                            name="city"
-                                            value={formData.city}
+                                            type="radio"
+                                            name="shippingMethod"
+                                            value="delivery"
+                                            checked={formData.shippingMethod === 'delivery'}
                                             onChange={handleInputChange}
-                                            placeholder="Ciudad de México"
-                                            required
                                         />
-                                    </div>
-                                    <div className="form-group">
-                                        <label htmlFor="state">Estado *</label>
-                                        <select
-                                            id="state"
-                                            name="state"
-                                            value={formData.state}
+                                        <div className="shipping-option-icon delivery">
+                                            <Truck size={24} />
+                                        </div>
+                                        <div className="shipping-option-info">
+                                            <span className="shipping-option-name">Envío a domicilio</span>
+                                            <span className="shipping-option-desc">
+                                                {subtotal >= 999 ? 'Envío gratis en compras mayores a $999' : 'Costo de envío: $150 MXN'}
+                                            </span>
+                                        </div>
+                                    </label>
+
+                                    <label className={`shipping-option ${formData.shippingMethod === 'pickup' ? 'selected' : ''}`}>
+                                        <input
+                                            type="radio"
+                                            name="shippingMethod"
+                                            value="pickup"
+                                            checked={formData.shippingMethod === 'pickup'}
                                             onChange={handleInputChange}
-                                            required
-                                        >
-                                            <option value="">Selecciona</option>
-                                            <option value="CDMX">Ciudad de México</option>
-                                            <option value="Estado de México">Estado de México</option>
-                                            <option value="Jalisco">Jalisco</option>
-                                            <option value="Nuevo León">Nuevo León</option>
-                                            <option value="Puebla">Puebla</option>
-                                            <option value="Querétaro">Querétaro</option>
-                                            <option value="Otro">Otro</option>
-                                        </select>
-                                    </div>
+                                        />
+                                        <div className="shipping-option-icon pickup">
+                                            <Store size={24} />
+                                        </div>
+                                        <div className="shipping-option-info">
+                                            <span className="shipping-option-name">Recoger en tienda</span>
+                                            <span className="shipping-option-desc">Gratis - Central de Abastos de Iztapalapa, bodega C-57</span>
+                                        </div>
+                                    </label>
                                 </div>
 
-                                <div className="form-group">
-                                    <label htmlFor="zipCode">Código Postal *</label>
-                                    <input
-                                        type="text"
-                                        id="zipCode"
-                                        name="zipCode"
-                                        value={formData.zipCode}
-                                        onChange={handleInputChange}
-                                        placeholder="01234"
-                                        maxLength={5}
-                                        required
-                                    />
-                                </div>
+                                {formData.shippingMethod === 'pickup' && (
+                                    <div className="pickup-info">
+                                        <Store size={18} />
+                                        <div>
+                                            <strong>Dirección de recogida:</strong>
+                                            <p>Central de Abastos de Iztapalapa, bodega C-57 entre el pasillo 2 y 3.</p>
+                                            <p>Horario: Lunes a Viernes 9:00 - 18:00, Sábados 10:00 - 14:00</p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {formData.shippingMethod === 'delivery' && (
+                                    <>
+                                        <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--color-neutral-800)', margin: '1.5rem 0 1rem' }}>
+                                            Dirección de Envío
+                                        </h3>
+
+                                        <div className="form-group">
+                                            <label htmlFor="address">Dirección *</label>
+                                            <input
+                                                type="text"
+                                                id="address"
+                                                name="address"
+                                                value={formData.address}
+                                                onChange={handleInputChange}
+                                                placeholder="Calle, número, colonia"
+                                                required
+                                            />
+                                        </div>
+
+                                        <div className="form-row">
+                                            <div className="form-group">
+                                                <label htmlFor="city">Ciudad *</label>
+                                                <input
+                                                    type="text"
+                                                    id="city"
+                                                    name="city"
+                                                    value={formData.city}
+                                                    onChange={handleInputChange}
+                                                    placeholder="Ciudad de México"
+                                                    required
+                                                />
+                                            </div>
+                                            <div className="form-group">
+                                                <label htmlFor="state">Estado *</label>
+                                                <select
+                                                    id="state"
+                                                    name="state"
+                                                    value={formData.state}
+                                                    onChange={handleInputChange}
+                                                    required
+                                                >
+                                                    <option value="">Selecciona</option>
+                                                    <option value="CDMX">Ciudad de México</option>
+                                                    <option value="Estado de México">Estado de México</option>
+                                                    <option value="Jalisco">Jalisco</option>
+                                                    <option value="Nuevo León">Nuevo León</option>
+                                                    <option value="Puebla">Puebla</option>
+                                                    <option value="Querétaro">Querétaro</option>
+                                                    <option value="Otro">Otro</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div className="form-group">
+                                            <label htmlFor="zipCode">Código Postal *</label>
+                                            <input
+                                                type="text"
+                                                id="zipCode"
+                                                name="zipCode"
+                                                value={formData.zipCode}
+                                                onChange={handleInputChange}
+                                                placeholder="01234"
+                                                maxLength={5}
+                                                required
+                                            />
+                                        </div>
+                                    </>
+                                )}
 
                                 <div className="form-group">
                                     <label htmlFor="notes">Notas del pedido (opcional)</label>
@@ -503,7 +567,7 @@ export default function CheckoutPage() {
                                         name="notes"
                                         value={formData.notes}
                                         onChange={handleInputChange}
-                                        placeholder="Instrucciones especiales de entrega..."
+                                        placeholder={isPickup ? 'Instrucciones especiales...' : 'Instrucciones especiales de entrega...'}
                                         rows={3}
                                     />
                                 </div>
@@ -516,7 +580,7 @@ export default function CheckoutPage() {
                                     <button
                                         className="btn-next"
                                         onClick={() => setStep(3)}
-                                        disabled={!formData.address || !formData.city || !formData.state || !formData.zipCode}
+                                        disabled={formData.shippingMethod === 'delivery' && (!formData.address || !formData.city || !formData.state || !formData.zipCode)}
                                     >
                                         Continuar a pago
                                     </button>
@@ -812,7 +876,7 @@ export default function CheckoutPage() {
                                 <span>${subtotal.toLocaleString('es-MX')}</span>
                             </div>
                             <div className="summary-row">
-                                <span>Envío</span>
+                                <span>{isPickup ? 'Recoger en tienda' : 'Envío'}</span>
                                 <span>
                                     {shipping === 0 ? (
                                         <span className="free-shipping">Gratis</span>
