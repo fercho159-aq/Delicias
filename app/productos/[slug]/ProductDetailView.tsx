@@ -169,6 +169,17 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
                 <div className="product-info-column">
                     <h1 className="product-title">{product.name}</h1>
 
+                    {product.description?.includes('Contenido aproximado') && (
+                        <div className="combo-disclaimer-banner">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="16" x2="12" y2="12" />
+                                <line x1="12" y1="8" x2="12.01" y2="8" />
+                            </svg>
+                            Contenido aproximado total de 1 kg por combo. El peso puede variar según la selección de productos, manteniendo siempre una cantidad cercana al kilogramo.
+                        </div>
+                    )}
+
                     <div className="product-meta">
                         {product.sku && <span className="product-sku">SKU: {product.sku}</span>}
                         <div className={`stock-status ${activeVariant?.inStock ? 'in-stock' : 'out-of-stock'}`}>
@@ -195,7 +206,7 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
                     </div>
 
                     <div className="product-description">
-                        <p>{product.description || 'Producto fresco y natural de la mejor calidad, directo del campo a tu hogar.'}</p>
+                        <p>{(product.description || 'Producto fresco y natural de la mejor calidad, directo del campo a tu hogar.').replace(/\n\nContenido aproximado.*$/, '')}</p>
                     </div>
 
                     {/* Selector de Variantes (Presentación) */}
