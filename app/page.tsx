@@ -120,6 +120,43 @@ export default async function Home() {
         <Link href="/productos" className="hero-link" aria-label="Ver productos" />
       </section>
 
+      {/* Featured Products Section */}
+      <section className="products-section">
+        <div className="container">
+          <div className="section-header">
+            <div>
+              <span className="section-badge">Catálogo</span>
+              <h2>Nuestros Productos</h2>
+              <p>Descubre nuestra variedad de productos premium</p>
+            </div>
+            <Link href="/productos" className="btn btn-outline">
+              Ver todos
+              <ChevronRight size={18} />
+            </Link>
+          </div>
+
+          {products.length > 0 ? (
+            <ProductGrid>
+              {products.map((product: any) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </ProductGrid>
+          ) : (
+            <div className="no-products">
+              <Package size={48} />
+              <p>Pronto tendremos productos disponibles</p>
+            </div>
+          )}
+
+          <div className="products-cta">
+            <Link href="/productos" className="btn btn-primary btn-lg">
+              <ShoppingCart size={20} />
+              Ver catálogo completo
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Categories Carousel */}
       <CategoriesCarousel categories={categories} />
 
@@ -178,43 +215,6 @@ export default async function Home() {
                 <span className="badge-text">Años de experiencia</span>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Products Section */}
-      <section className="products-section">
-        <div className="container">
-          <div className="section-header">
-            <div>
-              <span className="section-badge">Catálogo</span>
-              <h2>Nuestros Productos</h2>
-              <p>Descubre nuestra variedad de productos premium</p>
-            </div>
-            <Link href="/productos" className="btn btn-outline">
-              Ver todos
-              <ChevronRight size={18} />
-            </Link>
-          </div>
-
-          {products.length > 0 ? (
-            <ProductGrid>
-              {products.map((product: any) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </ProductGrid>
-          ) : (
-            <div className="no-products">
-              <Package size={48} />
-              <p>Pronto tendremos productos disponibles</p>
-            </div>
-          )}
-
-          <div className="products-cta">
-            <Link href="/productos" className="btn btn-primary btn-lg">
-              <ShoppingCart size={20} />
-              Ver catálogo completo
-            </Link>
           </div>
         </div>
       </section>
