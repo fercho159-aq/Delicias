@@ -47,20 +47,52 @@ const Header = ({ whatsappNumber = '5215519915154' }: { whatsappNumber?: string 
                             </svg>
                         </Link>
 
-                        {/* Dropdown Menu */}
-                        <div className={`nav-dropdown ${isDropdownOpen ? 'show' : ''}`}>
-                            <Link href="/tienda/cacahuates" className="dropdown-link">Cacahuates</Link>
-                            <Link href="/tienda/chocolate" className="dropdown-link">Chocolate</Link>
-                            <Link href="/tienda/dulces" className="dropdown-link">Dulces</Link>
-                            <Link href="/tienda/frutos-secos" className="dropdown-link">Frutos Secos</Link>
-                            <Link href="/tienda/nueces" className="dropdown-link">Nueces</Link>
-                            <Link href="/tienda/semillas" className="dropdown-link">Semillas</Link>
-                            <Link href="/tienda/mixes" className="dropdown-link">Mixes</Link>
-                            <Link href="/tienda/verduras-deshidratadas" className="dropdown-link">Verduras Deshidratadas</Link>
-                            <Link href="/tienda/cajas-de-regalo" className="dropdown-link">Cajas de Regalo</Link>
-                            <Link href="/tienda/paquetes-y-combos" className="dropdown-link">Paquetes y Combos</Link>
-                            <Link href="/tienda/canasta" className="dropdown-link">Canastas</Link>
-                        </div>
+                        {/* Mega Dropdown Menu */}
+                        {isDropdownOpen && (
+                            <div
+                                style={{
+                                    position: 'absolute',
+                                    top: '100%',
+                                    left: '0',
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(3, 1fr)',
+                                    width: '520px',
+                                    background: 'white',
+                                    borderRadius: '12px',
+                                    padding: '0',
+                                    boxShadow: '0 20px 40px -8px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.06)',
+                                    zIndex: 200,
+                                    overflow: 'hidden',
+                                    animation: 'dropdownIn 0.2s ease',
+                                }}
+                            >
+                                <div style={{ padding: '1rem 1rem 0.75rem', display: 'flex', flexDirection: 'column', gap: '2px', borderRight: '1px solid #f0f0f0' }}>
+                                    <span style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase' as const, letterSpacing: '0.1em', color: '#15803d', padding: '0 0.5rem 0.4rem' }}>Botana</span>
+                                    <Link href="/tienda/cacahuates" className="mega-link">Cacahuates</Link>
+                                    <Link href="/tienda/chocolate" className="mega-link">Chocolate</Link>
+                                    <Link href="/tienda/dulces" className="mega-link">Dulces</Link>
+                                    <Link href="/tienda/nueces" className="mega-link">Nueces</Link>
+                                </div>
+                                <div style={{ padding: '1rem 1rem 0.75rem', display: 'flex', flexDirection: 'column', gap: '2px', borderRight: '1px solid #f0f0f0' }}>
+                                    <span style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase' as const, letterSpacing: '0.1em', color: '#15803d', padding: '0 0.5rem 0.4rem' }}>Naturales</span>
+                                    <Link href="/tienda/frutos-secos" className="mega-link">Frutos Secos</Link>
+                                    <Link href="/tienda/semillas" className="mega-link">Semillas</Link>
+                                    <Link href="/tienda/mixes" className="mega-link">Mixes</Link>
+                                    <Link href="/tienda/verduras-deshidratadas" className="mega-link">Verduras</Link>
+                                </div>
+                                <div style={{ padding: '1rem 1rem 0.75rem', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                    <span style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase' as const, letterSpacing: '0.1em', color: '#15803d', padding: '0 0.5rem 0.4rem' }}>Para Regalar</span>
+                                    <Link href="/tienda/cajas-de-regalo" className="mega-link">Cajas de Regalo</Link>
+                                    <Link href="/tienda/paquetes-y-combos" className="mega-link">Combos</Link>
+                                    <Link href="/tienda/canasta" className="mega-link">Canastas</Link>
+                                </div>
+                                <div style={{ gridColumn: '1 / -1', padding: '0.5rem 1rem', background: '#f0fdf4', borderTop: '1px solid #dcfce7', display: 'flex', justifyContent: 'center' }}>
+                                    <Link href="/tienda" style={{ fontSize: '0.8rem', fontWeight: 600, color: '#15803d', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                        Ver toda la tienda →
+                                    </Link>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <Link href="/nosotros" className="nav-link">
@@ -155,15 +187,21 @@ const Header = ({ whatsappNumber = '5215519915154' }: { whatsappNumber?: string 
             {/* Mobile Navigation */}
             <nav className={`nav-mobile ${isMobileMenuOpen ? 'open' : ''}`}>
                 <div className="nav-mobile-group">
-                    <span className="nav-mobile-title">Tienda</span>
+                    <span className="nav-mobile-title">Botana Individual</span>
                     <Link href="/tienda/cacahuates" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Cacahuates</Link>
                     <Link href="/tienda/chocolate" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Chocolate</Link>
                     <Link href="/tienda/dulces" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Dulces</Link>
-                    <Link href="/tienda/frutos-secos" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Frutos Secos</Link>
                     <Link href="/tienda/nueces" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Nueces</Link>
+                </div>
+                <div className="nav-mobile-group">
+                    <span className="nav-mobile-title">Naturales</span>
+                    <Link href="/tienda/frutos-secos" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Frutos Secos</Link>
                     <Link href="/tienda/semillas" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Semillas</Link>
                     <Link href="/tienda/mixes" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Mixes</Link>
                     <Link href="/tienda/verduras-deshidratadas" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Verduras Deshidratadas</Link>
+                </div>
+                <div className="nav-mobile-group">
+                    <span className="nav-mobile-title">Para Regalar</span>
                     <Link href="/tienda/cajas-de-regalo" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Cajas de Regalo</Link>
                     <Link href="/tienda/paquetes-y-combos" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Paquetes y Combos</Link>
                     <Link href="/tienda/canasta" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Canastas</Link>
