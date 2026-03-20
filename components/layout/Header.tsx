@@ -11,6 +11,7 @@ import './Header.css';
 const Header = ({ whatsappNumber = '5215519915154' }: { whatsappNumber?: string }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isCatalogDropdownOpen, setIsCatalogDropdownOpen] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const { itemCount, openCart } = useCart();
     const { user } = useUser();
@@ -60,6 +61,22 @@ const Header = ({ whatsappNumber = '5215519915154' }: { whatsappNumber?: string 
                     <Link href="/contacto" className="nav-link">
                         Contacto
                     </Link>
+                    <div
+                        className="nav-item-container"
+                        onMouseEnter={() => setIsCatalogDropdownOpen(true)}
+                        onMouseLeave={() => setIsCatalogDropdownOpen(false)}
+                    >
+                        <span className="nav-link" style={{ cursor: 'pointer' }}>
+                            Catálogo
+                            <svg className="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="m6 9 6 6 6-6" />
+                            </svg>
+                        </span>
+                        <div className={`nav-dropdown ${isCatalogDropdownOpen ? 'show' : ''}`}>
+                            <a href="/catalogo-compressed.pdf" target="_blank" rel="noopener noreferrer" className="dropdown-link">Catálogo</a>
+                            <a href="/catalogo-botana.pdf" target="_blank" rel="noopener noreferrer" className="dropdown-link">Botana</a>
+                        </div>
+                    </div>
                 </nav>
 
                 {/* Actions */}
@@ -138,6 +155,11 @@ const Header = ({ whatsappNumber = '5215519915154' }: { whatsappNumber?: string 
 
                 <Link href="/nosotros" className="nav-link-mobile" onClick={() => setIsMobileMenuOpen(false)}>Nosotros</Link>
                 <Link href="/contacto" className="nav-link-mobile" onClick={() => setIsMobileMenuOpen(false)}>Contacto</Link>
+                <div className="nav-mobile-group">
+                    <span className="nav-mobile-title">Catálogo</span>
+                    <a href="/catalogo-compressed.pdf" target="_blank" rel="noopener noreferrer" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Catálogo</a>
+                    <a href="/catalogo-botana.pdf" target="_blank" rel="noopener noreferrer" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Botana</a>
+                </div>
                 <a
                     href={`https://wa.me/${whatsappNumber}`}
                     target="_blank"
