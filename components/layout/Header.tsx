@@ -49,8 +49,16 @@ const Header = ({ whatsappNumber = '5215519915154' }: { whatsappNumber?: string 
 
                         {/* Dropdown Menu */}
                         <div className={`nav-dropdown ${isDropdownOpen ? 'show' : ''}`}>
+                            <Link href="/tienda/cacahuates" className="dropdown-link">Cacahuates</Link>
+                            <Link href="/tienda/chocolate" className="dropdown-link">Chocolate</Link>
+                            <Link href="/tienda/dulces" className="dropdown-link">Dulces</Link>
+                            <Link href="/tienda/frutos-secos" className="dropdown-link">Frutos Secos</Link>
+                            <Link href="/tienda/nueces" className="dropdown-link">Nueces</Link>
+                            <Link href="/tienda/semillas" className="dropdown-link">Semillas</Link>
+                            <Link href="/tienda/mixes" className="dropdown-link">Mixes</Link>
+                            <Link href="/tienda/verduras-deshidratadas" className="dropdown-link">Verduras Deshidratadas</Link>
                             <Link href="/tienda/cajas-de-regalo" className="dropdown-link">Cajas de Regalo</Link>
-                            <Link href="/tienda/paquetes" className="dropdown-link">Paquetes</Link>
+                            <Link href="/tienda/paquetes-y-combos" className="dropdown-link">Paquetes y Combos</Link>
                             <Link href="/tienda/canasta" className="dropdown-link">Canastas</Link>
                         </div>
                     </div>
@@ -148,8 +156,16 @@ const Header = ({ whatsappNumber = '5215519915154' }: { whatsappNumber?: string 
             <nav className={`nav-mobile ${isMobileMenuOpen ? 'open' : ''}`}>
                 <div className="nav-mobile-group">
                     <span className="nav-mobile-title">Tienda</span>
+                    <Link href="/tienda/cacahuates" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Cacahuates</Link>
+                    <Link href="/tienda/chocolate" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Chocolate</Link>
+                    <Link href="/tienda/dulces" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Dulces</Link>
+                    <Link href="/tienda/frutos-secos" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Frutos Secos</Link>
+                    <Link href="/tienda/nueces" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Nueces</Link>
+                    <Link href="/tienda/semillas" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Semillas</Link>
+                    <Link href="/tienda/mixes" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Mixes</Link>
+                    <Link href="/tienda/verduras-deshidratadas" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Verduras Deshidratadas</Link>
                     <Link href="/tienda/cajas-de-regalo" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Cajas de Regalo</Link>
-                    <Link href="/tienda/paquetes" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Paquetes</Link>
+                    <Link href="/tienda/paquetes-y-combos" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Paquetes y Combos</Link>
                     <Link href="/tienda/canasta" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Canastas</Link>
                 </div>
 
