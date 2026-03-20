@@ -10,11 +10,11 @@ const Footer = ({ whatsappNumber = '5215519915154' }: { whatsappNumber?: string 
 
     const footerLinks = {
         productos: [
-            { href: '/productos/nueces', label: 'Nueces' },
-            { href: '/productos/semillas', label: 'Semillas' },
-            { href: '/productos/frutos-secos', label: 'Frutos Secos' },
-            { href: '/productos/botanas', label: 'Botanas' },
-            { href: '/productos/cajas-regalo', label: 'Cajas de Regalo' },
+            { href: '/productos?categoria=nueces', label: 'Nueces' },
+            { href: '/productos?categoria=semillas', label: 'Semillas' },
+            { href: '/productos?categoria=frutos-secos', label: 'Frutos Secos' },
+            { href: '/productos?categoria=botanas', label: 'Botanas' },
+            { href: '/productos?categoria=cajas-regalo', label: 'Cajas de Regalo' },
         ],
         empresa: [
             { href: '/nosotros', label: 'Quiénes Somos' },
