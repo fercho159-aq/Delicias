@@ -15,7 +15,7 @@ export function ContactPageClient() {
     const [sending, setSending] = useState(false);
     const [sent, setSent] = useState(false);
     const [error, setError] = useState('');
-    const [whatsappNumber, setWhatsappNumber] = useState('5215519915154');
+    const [whatsappNumber, setWhatsappNumber] = useState('5215648714631');
 
     useEffect(() => {
         fetch('/api/config?keys=whatsapp_number')
@@ -76,7 +76,7 @@ export function ContactPageClient() {
                             <div className="info-content">
                                 <h3>Teléfono</h3>
                                 <p>
-                                    <a href="tel:+525519915154">55 1991 5154</a>
+                                    <a href="tel:+525648714631">56 4871 4631</a>
                                 </p>
                                 <p>Lunes a Viernes, 9:00 - 18:00</p>
                             </div>

@@ -70,7 +70,7 @@ export default function CheckoutPage() {
     }
 
     // Discount code state
-    const [whatsappNumber, setWhatsappNumber] = useState('5215519915154');
+    const [whatsappNumber, setWhatsappNumber] = useState('5215648714631');
 
     // Fetch WhatsApp number from config
     useEffect(() => {

@@ -80,7 +80,7 @@ export default async function Home() {
     }),
     getConfigs(['whatsapp_number']).catch((err) => {
       console.error('Failed to fetch site config:', err);
-      return { whatsapp_number: '5215519915154' } as Record<string, string>;
+      return { whatsapp_number: '5215648714631' } as Record<string, string>;
     }),
   ]);
 
@@ -91,7 +91,7 @@ export default async function Home() {
     "description": "Tienda en línea de nueces, semillas, frutos secos y cajas de regalo. Envíos a todo México.",
     "url": process.env.NEXT_PUBLIC_SITE_URL || "https://lasdeliciasdelcampo.com",
     "logo": `${process.env.NEXT_PUBLIC_SITE_URL || "https://lasdeliciasdelcampo.com"}/logo.png`,
-    "telephone": `+52${siteConfig.whatsapp_number || '5519915154'}`,
+    "telephone": `+52${siteConfig.whatsapp_number || '5648714631'}`,
     "address": {
       "@type": "PostalAddress",
       "addressCountry": "MX",
@@ -252,7 +252,7 @@ export default async function Home() {
                 <Phone size={22} strokeWidth={1.5} />
                 <div>
                   <strong>Teléfono</strong>
-                  <p>55 1991 5154</p>
+                  <p>56 4871 4631</p>
                 </div>
               </div>
               <div className="location-detail">
