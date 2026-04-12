@@ -547,8 +547,13 @@
 
 @media (max-width: 768px) {
     .hero-section {
-        aspect-ratio: auto;
-        min-height: 200px;
+        height: auto;
+        aspect-ratio: 4 / 3;
+        min-height: unset;
+    }
+
+    .hero-background img {
+        object-position: right center !important;
     }
 
     .about-highlights {
