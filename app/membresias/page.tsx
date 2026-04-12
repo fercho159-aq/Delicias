@@ -164,7 +164,7 @@ const PLAN_LABELS: Record<string, string> = {
 
 export default function MembresiasPage() {
     const [isAnnual, setIsAnnual] = useState(false);
-    const [whatsappNumber, setWhatsappNumber] = useState('5215519915154');
+    const [whatsappNumber, setWhatsappNumber] = useState('5215648714631');
 
     useEffect(() => {
         fetch('/api/config?keys=whatsapp_number')

@@ -2,7 +2,7 @@ import prisma from '@/lib/prisma';
 
 // Default values used as fallbacks
 const DEFAULTS: Record<string, string> = {
-    'whatsapp_number': '5215519915154',
+    'whatsapp_number': '5215648714631',
     'shipping_cost': '150',
     'free_shipping_threshold': '999',
     'store_name': 'Las Delicias del Campo',

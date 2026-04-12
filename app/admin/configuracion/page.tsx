@@ -23,7 +23,7 @@ const CONFIG_FIELDS: Omit<ConfigItem, 'value'>[] = [
     {
         key: 'whatsapp_number',
         label: 'Número de WhatsApp',
-        hint: 'Número completo con código de país (ej: 5215519915154)',
+        hint: 'Número completo con código de país (ej: 5215648714631)',
         icon: <Phone size={18} />,
         type: 'text',
     },
@@ -44,7 +44,7 @@ const CONFIG_FIELDS: Omit<ConfigItem, 'value'>[] = [
 ];
 
 const DEFAULTS: Record<string, string> = {
-    whatsapp_number: '5215519915154',
+    whatsapp_number: '5215648714631',
     shipping_cost: '150',
     free_shipping_threshold: '999',
     store_name: 'Las Delicias del Campo',

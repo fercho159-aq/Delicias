@@ -8,7 +8,7 @@ import { useUser } from '@/lib/UserContext';
 import SearchModal from '@/components/SearchModal';
 import './Header.css';
 
-const Header = ({ whatsappNumber = '5215519915154' }: { whatsappNumber?: string }) => {
+const Header = ({ whatsappNumber = '5215648714631' }: { whatsappNumber?: string }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isCatalogDropdownOpen, setIsCatalogDropdownOpen] = useState(false);

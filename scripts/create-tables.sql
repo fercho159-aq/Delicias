@@ -223,7 +223,7 @@ ON CONFLICT (slug) DO NOTHING;
 INSERT INTO site_config (key, value, type) VALUES
     ('site_name', 'Las Delicias del Campo', 'text'),
     ('site_description', 'Nueces, semillas y frutos secos premium. Del campo a tu mesa.', 'text'),
-    ('whatsapp_number', '5215519915154', 'text'),
+    ('whatsapp_number', '5215648714631', 'text'),
     ('free_shipping_threshold', '500', 'text'),
     ('about_title', '¿Quiénes Somos?', 'text'),
     ('about_text', 'Empresa familiar dedicada a la comercialización de nueces, semillas y frutos secos seleccionados, a través del más alto estándar de calidad e innovación.', 'html')
