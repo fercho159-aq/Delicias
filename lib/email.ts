@@ -3,6 +3,18 @@ import nodemailer from 'nodemailer';
 const FROM_NAME = 'Las Delicias del Campo';
 const FROM_EMAIL = process.env.SMTP_USER || 'venta@lasdeliciasdelcampo.com';
 
+// Notificaciones de pedidos: múltiples destinatarios administrativos
+const DEFAULT_ADMIN_EMAILS = [
+    'ventas@lasdeliciasdelcampo.com',
+    'tienda@lasdeliciasdelcampo.com',
+    'admin@lasdeliciasdelcampo.com',
+    'venta@lasdeliciasdelcampo.com',
+    'fernandotrejo159@gmail.com',
+];
+const ADMIN_EMAILS = process.env.ADMIN_EMAILS
+    ? process.env.ADMIN_EMAILS.split(',').map(e => e.trim()).filter(Boolean)
+    : DEFAULT_ADMIN_EMAILS;
+
 function createTransporter() {
     return nodemailer.createTransport({
         host: process.env.SMTP_HOST || 'smtp.hostinger.com',
@@ -345,7 +357,7 @@ export async function sendOrderNotificationEmail(data: OrderEmailData): Promise<
 
     await transporter.sendMail({
         from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
-        to: FROM_EMAIL,
+        to: ADMIN_EMAILS.join(', '),
         subject: `Nuevo pedido #${data.orderNumber} - $${data.total.toLocaleString('es-MX')}`,
         html: buildAdminNotificationHtml(data),
     });

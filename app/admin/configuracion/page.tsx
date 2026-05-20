@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Save, Settings, Phone, Truck, Store } from 'lucide-react';
+import { Save, Settings, Phone, Truck, Store, Mail, Send } from 'lucide-react';
 import '../forms.css';
 
 interface ConfigItem {
@@ -56,6 +56,10 @@ export default function ConfiguracionAdmin() {
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
+    const [testEmail, setTestEmail] = useState('');
+    const [testingEmail, setTestingEmail] = useState(false);
+    const [testMessage, setTestMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
     useEffect(() => {
         fetchConfigs();
     }, []);
@@ -66,6 +70,13 @@ export default function ConfiguracionAdmin() {
             return () => clearTimeout(timer);
         }
     }, [message]);
+
+    useEffect(() => {
+        if (testMessage) {
+            const timer = setTimeout(() => setTestMessage(null), 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [testMessage]);
 
     const fetchConfigs = async () => {
         try {
@@ -121,6 +132,37 @@ export default function ConfiguracionAdmin() {
             setMessage({ type: 'error', text: 'Error de conexión al guardar' });
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleTestEmail = async () => {
+        if (!testEmail) {
+            setTestMessage({ type: 'error', text: 'Ingresa un correo de destino' });
+            return;
+        }
+
+        setTestingEmail(true);
+        setTestMessage(null);
+
+        try {
+            const res = await fetch('/api/admin/test-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ to: testEmail }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                setTestMessage({ type: 'error', text: data.error || 'Error al enviar' });
+                return;
+            }
+
+            setTestMessage({ type: 'success', text: data.message || 'Correo enviado correctamente' });
+        } catch {
+            setTestMessage({ type: 'error', text: 'Error de conexión al enviar' });
+        } finally {
+            setTestingEmail(false);
         }
     };
 
@@ -197,6 +239,47 @@ export default function ConfiguracionAdmin() {
                                 <Save size={16} />
                                 {saving ? 'Guardando...' : 'Guardar Cambios'}
                             </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Test Email Section */}
+                <div className="form-card" style={{ marginTop: '1.5rem' }}>
+                    <div className="form-card-header">
+                        <h2><Mail size={18} /> Prueba de Correo</h2>
+                    </div>
+                    <div className="form-card-body">
+                        {testMessage && (
+                            <div className={`form-message ${testMessage.type}`} style={{ marginBottom: '1rem' }}>
+                                {testMessage.text}
+                            </div>
+                        )}
+                        <div className="form-field">
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <Mail size={18} />
+                                Correo de destino
+                            </label>
+                            <input
+                                type="email"
+                                value={testEmail}
+                                onChange={e => setTestEmail(e.target.value)}
+                                placeholder="ejemplo@correo.com"
+                            />
+                            <div className="field-hint">Ingresa el correo donde quieres recibir la prueba</div>
+                        </div>
+                        <div className="form-actions" style={{ marginTop: '1rem', padding: 0 }}>
+                            <div className="form-actions-left" />
+                            <div className="form-actions-right">
+                                <button
+                                    type="button"
+                                    className="btn-admin primary"
+                                    onClick={handleTestEmail}
+                                    disabled={testingEmail}
+                                >
+                                    <Send size={16} />
+                                    {testingEmail ? 'Enviando...' : 'Enviar Prueba'}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
