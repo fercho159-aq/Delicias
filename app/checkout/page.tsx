@@ -25,6 +25,7 @@ interface CheckoutFormData {
     lastName: string;
     phone: string;
     shippingMethod: 'delivery' | 'pickup';
+    pickupLocationId: string;
     address: string;
     city: string;
     state: string;
@@ -32,6 +33,40 @@ interface CheckoutFormData {
     notes: string;
     paymentMethod: 'mercadopago' | 'transfer' | 'whatsapp';
 }
+
+interface PickupLocation {
+    id: string;
+    name: string;
+    address: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    hours: string;
+    shortDesc: string;
+}
+
+const PICKUP_LOCATIONS: PickupLocation[] = [
+    {
+        id: 'iztapalapa',
+        name: 'Central de Abastos de Iztapalapa',
+        address: 'Central de Abastos de Iztapalapa, bodega C-57 entre el pasillo 2 y 3.',
+        city: 'Iztapalapa',
+        state: 'CDMX',
+        zipCode: '09040',
+        hours: 'Lunes a Viernes 9:00 - 18:00, Sábados 10:00 - 14:00',
+        shortDesc: 'Central de Abastos de Iztapalapa, bodega C-57',
+    },
+    {
+        id: 'axotla',
+        name: 'Sucursal Axotla',
+        address: 'Minerva 298, Axotla, Álvaro Obregón, 01030 Ciudad de México, CDMX.',
+        city: 'Álvaro Obregón',
+        state: 'CDMX',
+        zipCode: '01030',
+        hours: 'Lunes a Viernes 9:00 - 18:00, Sábados 10:00 - 14:00',
+        shortDesc: 'Minerva 298, Axotla, Álvaro Obregón',
+    },
+];
 
 export default function CheckoutPage() {
     const router = useRouter();
@@ -48,6 +83,7 @@ export default function CheckoutPage() {
         lastName: '',
         phone: '',
         shippingMethod: 'delivery',
+        pickupLocationId: PICKUP_LOCATIONS[0].id,
         address: '',
         city: '',
         state: '',
@@ -92,6 +128,8 @@ export default function CheckoutPage() {
     } | null>(null);
 
     const isPickup = formData.shippingMethod === 'pickup';
+    const selectedPickupLocation =
+        PICKUP_LOCATIONS.find(loc => loc.id === formData.pickupLocationId) || PICKUP_LOCATIONS[0];
     const baseShipping = isPickup ? 0 : (subtotal >= 999 ? 0 : 150);
     const shipping = appliedDiscount?.type === 'FREE_SHIPPING' ? 0 : baseShipping;
     const discountAmount = appliedDiscount
@@ -147,7 +185,8 @@ export default function CheckoutPage() {
         message += `📱 *Teléfono:* ${formData.phone}\n\n`;
         if (isPickup) {
             message += `🏪 *Método de entrega:* Recoger en tienda\n`;
-            message += `📍 Central de Abastos de Iztapalapa, bodega C-57 entre el pasillo 2 y 3.\n\n`;
+            message += `📍 *Sucursal:* ${selectedPickupLocation.name}\n`;
+            message += `📍 ${selectedPickupLocation.address}\n\n`;
         } else {
             message += `🚚 *Método de entrega:* Envío a domicilio\n`;
             message += `📍 *Dirección de envío:*\n`;
@@ -183,7 +222,12 @@ export default function CheckoutPage() {
 
         try {
             const shippingData = isPickup
-                ? { address: 'Recoger en tienda', city: 'Iztapalapa', state: 'CDMX', zipCode: '09040' }
+                ? {
+                    address: `Recoger en tienda - ${selectedPickupLocation.name}: ${selectedPickupLocation.address}`,
+                    city: selectedPickupLocation.city,
+                    state: selectedPickupLocation.state,
+                    zipCode: selectedPickupLocation.zipCode,
+                }
                 : { address: formData.address, city: formData.city, state: formData.state, zipCode: formData.zipCode };
 
             if (formData.paymentMethod === 'mercadopago') {
@@ -475,20 +519,49 @@ export default function CheckoutPage() {
                                         </div>
                                         <div className="shipping-option-info">
                                             <span className="shipping-option-name">Recoger en tienda</span>
-                                            <span className="shipping-option-desc">Gratis - Central de Abastos de Iztapalapa, bodega C-57</span>
+                                            <span className="shipping-option-desc">Gratis - Elige entre nuestras sucursales</span>
                                         </div>
                                     </label>
                                 </div>
 
                                 {formData.shippingMethod === 'pickup' && (
-                                    <div className="pickup-info">
-                                        <Store size={18} />
-                                        <div>
-                                            <strong>Dirección de recogida:</strong>
-                                            <p>Central de Abastos de Iztapalapa, bodega C-57 entre el pasillo 2 y 3.</p>
-                                            <p>Horario: Lunes a Viernes 9:00 - 18:00, Sábados 10:00 - 14:00</p>
+                                    <>
+                                        <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--color-neutral-800)', margin: '1.5rem 0 1rem' }}>
+                                            Elige una sucursal
+                                        </h3>
+                                        <div className="shipping-methods">
+                                            {PICKUP_LOCATIONS.map(location => (
+                                                <label
+                                                    key={location.id}
+                                                    className={`shipping-option ${formData.pickupLocationId === location.id ? 'selected' : ''}`}
+                                                >
+                                                    <input
+                                                        type="radio"
+                                                        name="pickupLocationId"
+                                                        value={location.id}
+                                                        checked={formData.pickupLocationId === location.id}
+                                                        onChange={handleInputChange}
+                                                    />
+                                                    <div className="shipping-option-icon pickup">
+                                                        <Store size={24} />
+                                                    </div>
+                                                    <div className="shipping-option-info">
+                                                        <span className="shipping-option-name">{location.name}</span>
+                                                        <span className="shipping-option-desc">{location.shortDesc}</span>
+                                                    </div>
+                                                </label>
+                                            ))}
                                         </div>
-                                    </div>
+
+                                        <div className="pickup-info">
+                                            <Store size={18} />
+                                            <div>
+                                                <strong>Dirección de recogida:</strong>
+                                                <p>{selectedPickupLocation.address}</p>
+                                                <p>Horario: {selectedPickupLocation.hours}</p>
+                                            </div>
+                                        </div>
+                                    </>
                                 )}
 
                                 {formData.shippingMethod === 'delivery' && (
