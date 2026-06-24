@@ -702,23 +702,6 @@ export default function CheckoutPage() {
                                             <span className="payment-desc">Te contactamos para confirmar el pago</span>
                                         </div>
                                     </label>
-
-                                    <label className={`payment-option ${formData.paymentMethod === 'transfer' ? 'selected' : ''}`}>
-                                        <input
-                                            type="radio"
-                                            name="paymentMethod"
-                                            value="transfer"
-                                            checked={formData.paymentMethod === 'transfer'}
-                                            onChange={handleInputChange}
-                                        />
-                                        <div className="payment-icon transfer">
-                                            <CreditCard size={24} />
-                                        </div>
-                                        <div className="payment-info">
-                                            <span className="payment-name">Transferencia Bancaria</span>
-                                            <span className="payment-desc">Te enviamos los datos por correo</span>
-                                        </div>
-                                    </label>
                                 </div>
 
                                 <div className="security-badges">

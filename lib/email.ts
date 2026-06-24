@@ -16,14 +16,22 @@ const ADMIN_EMAILS = process.env.ADMIN_EMAILS
     : DEFAULT_ADMIN_EMAILS;
 
 function createTransporter() {
+    const user = process.env.SMTP_USER;
+    const pass = process.env.SMTP_PASS;
+    if (!user || !pass) {
+        // Sin credenciales nodemailer falla la autenticación y NINGÚN correo se
+        // envía. Lo registramos para que el fallo sea visible en los logs en vez
+        // de tragarse en silencio.
+        console.error(
+            '[email] SMTP_USER/SMTP_PASS no configurados — los correos NO se enviarán. ' +
+            'Configura estas variables de entorno en el servidor.'
+        );
+    }
     return nodemailer.createTransport({
         host: process.env.SMTP_HOST || 'smtp.hostinger.com',
         port: Number(process.env.SMTP_PORT) || 465,
         secure: true, // SSL/TLS on port 465
-        auth: {
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASS,
-        },
+        auth: { user, pass },
     });
 }
 
