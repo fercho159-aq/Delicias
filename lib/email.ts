@@ -6,9 +6,6 @@ const FROM_EMAIL = process.env.SMTP_USER || 'ventas@lasdeliciasdelcampo.com';
 // Notificaciones de pedidos: múltiples destinatarios administrativos
 const DEFAULT_ADMIN_EMAILS = [
     'ventas@lasdeliciasdelcampo.com',
-    'tienda@lasdeliciasdelcampo.com',
-    'admin@lasdeliciasdelcampo.com',
-    'ventas@lasdeliciasdelcampo.com',
     'fernandotrejo159@gmail.com',
 ];
 const ADMIN_EMAILS = process.env.ADMIN_EMAILS
@@ -367,20 +364,32 @@ export async function sendPaymentConfirmedEmail(data: OrderEmailData): Promise<v
 
 export async function sendOrderNotificationEmail(data: OrderEmailData): Promise<void> {
     const transporter = createTransporter();
-    const recipients = ADMIN_EMAILS.join(', ');
-    console.log(`[email] Enviando notificación admin pedido #${data.orderNumber} a ${recipients}`);
+    const subject = `Nuevo pedido #${data.orderNumber} - $${data.total.toLocaleString('es-MX')}`;
+    const html = buildAdminNotificationHtml(data);
 
-    try {
-        const info = await transporter.sendMail({
-            from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
-            to: recipients,
-            subject: `Nuevo pedido #${data.orderNumber} - $${data.total.toLocaleString('es-MX')}`,
-            html: buildAdminNotificationHtml(data),
-        });
-        console.log(`[email] Notificación admin enviada — messageId: ${info.messageId}`);
-    } catch (err) {
-        console.error(`[email] ERROR enviando notificación admin:`, err);
-        throw err;
+    console.log(`[email] Enviando notificación admin pedido #${data.orderNumber} a ${ADMIN_EMAILS.join(', ')}`);
+
+    const results = await Promise.allSettled(
+        ADMIN_EMAILS.map(async (recipient) => {
+            try {
+                const info = await transporter.sendMail({
+                    from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
+                    to: recipient,
+                    subject,
+                    html,
+                });
+                console.log(`[email] Notificación admin enviada a ${recipient} — messageId: ${info.messageId}`);
+                return info;
+            } catch (err) {
+                console.error(`[email] ERROR enviando notificación a ${recipient}:`, err);
+                throw err;
+            }
+        })
+    );
+
+    const allFailed = results.every(r => r.status === 'rejected');
+    if (allFailed) {
+        throw new Error('No se pudo enviar la notificación a ningún admin');
     }
 }
 
