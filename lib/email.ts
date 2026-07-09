@@ -1,14 +1,14 @@
 import nodemailer from 'nodemailer';
 
 const FROM_NAME = 'Las Delicias del Campo';
-const FROM_EMAIL = process.env.SMTP_USER || 'venta@lasdeliciasdelcampo.com';
+const FROM_EMAIL = process.env.SMTP_USER || 'ventas@lasdeliciasdelcampo.com';
 
 // Notificaciones de pedidos: múltiples destinatarios administrativos
 const DEFAULT_ADMIN_EMAILS = [
     'ventas@lasdeliciasdelcampo.com',
     'tienda@lasdeliciasdelcampo.com',
     'admin@lasdeliciasdelcampo.com',
-    'venta@lasdeliciasdelcampo.com',
+    'ventas@lasdeliciasdelcampo.com',
     'fernandotrejo159@gmail.com',
 ];
 const ADMIN_EMAILS = process.env.ADMIN_EMAILS
@@ -19,9 +19,6 @@ function createTransporter() {
     const user = process.env.SMTP_USER;
     const pass = process.env.SMTP_PASS;
     if (!user || !pass) {
-        // Sin credenciales nodemailer falla la autenticación y NINGÚN correo se
-        // envía. Lo registramos para que el fallo sea visible en los logs en vez
-        // de tragarse en silencio.
         console.error(
             '[email] SMTP_USER/SMTP_PASS no configurados — los correos NO se enviarán. ' +
             'Configura estas variables de entorno en el servidor.'
@@ -30,8 +27,11 @@ function createTransporter() {
     return nodemailer.createTransport({
         host: process.env.SMTP_HOST || 'smtp.hostinger.com',
         port: Number(process.env.SMTP_PORT) || 465,
-        secure: true, // SSL/TLS on port 465
+        secure: true,
         auth: { user, pass },
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 15000,
     });
 }
 
@@ -178,7 +178,7 @@ function buildOrderReceivedHtml(data: OrderEmailData): string {
                 <tr>
                     <td style="background-color: #faf9f7; padding: 24px 32px; text-align: center; border-top: 1px solid #f0ede8;">
                         <p style="margin: 0; font-size: 13px; color: #8b8579;">
-                            ¿Preguntas? Contáctanos por WhatsApp o a venta@lasdeliciasdelcampo.com
+                            ¿Preguntas? Contáctanos por WhatsApp o a ventas@lasdeliciasdelcampo.com
                         </p>
                         <p style="margin: 8px 0 0; font-size: 12px; color: #b5b0a8;">
                             Las Delicias del Campo - Del campo a tu mesa
@@ -263,7 +263,7 @@ function buildPaymentConfirmedHtml(data: OrderEmailData): string {
                 <tr>
                     <td style="background-color: #faf9f7; padding: 24px 32px; text-align: center; border-top: 1px solid #f0ede8;">
                         <p style="margin: 0; font-size: 13px; color: #8b8579;">
-                            ¿Preguntas? Contáctanos por WhatsApp o a venta@lasdeliciasdelcampo.com
+                            ¿Preguntas? Contáctanos por WhatsApp o a ventas@lasdeliciasdelcampo.com
                         </p>
                         <p style="margin: 8px 0 0; font-size: 12px; color: #b5b0a8;">
                             Las Delicias del Campo - Del campo a tu mesa
@@ -329,46 +329,59 @@ function buildAdminNotificationHtml(data: OrderEmailData): string {
 </html>`;
 }
 
-/**
- * Send order confirmation email to the customer.
- */
 export async function sendOrderConfirmationEmail(data: OrderEmailData): Promise<void> {
     const transporter = createTransporter();
+    console.log(`[email] Enviando confirmación de pedido #${data.orderNumber} a ${data.customerEmail}`);
 
-    await transporter.sendMail({
-        from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
-        to: data.customerEmail,
-        subject: `Pedido #${data.orderNumber} recibido - Las Delicias del Campo`,
-        html: buildOrderReceivedHtml(data),
-    });
+    try {
+        const info = await transporter.sendMail({
+            from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
+            to: data.customerEmail,
+            subject: `Pedido #${data.orderNumber} recibido - Las Delicias del Campo`,
+            html: buildOrderReceivedHtml(data),
+        });
+        console.log(`[email] Confirmación enviada a ${data.customerEmail} — messageId: ${info.messageId}`);
+    } catch (err) {
+        console.error(`[email] ERROR enviando confirmación a ${data.customerEmail}:`, err);
+        throw err;
+    }
 }
 
-/**
- * Send payment confirmed email to the customer.
- */
 export async function sendPaymentConfirmedEmail(data: OrderEmailData): Promise<void> {
     const transporter = createTransporter();
+    console.log(`[email] Enviando confirmación de pago #${data.orderNumber} a ${data.customerEmail}`);
 
-    await transporter.sendMail({
-        from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
-        to: data.customerEmail,
-        subject: `Pago confirmado - Pedido #${data.orderNumber} - Las Delicias del Campo`,
-        html: buildPaymentConfirmedHtml(data),
-    });
+    try {
+        const info = await transporter.sendMail({
+            from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
+            to: data.customerEmail,
+            subject: `Pago confirmado - Pedido #${data.orderNumber} - Las Delicias del Campo`,
+            html: buildPaymentConfirmedHtml(data),
+        });
+        console.log(`[email] Pago confirmado enviado a ${data.customerEmail} — messageId: ${info.messageId}`);
+    } catch (err) {
+        console.error(`[email] ERROR enviando confirmación de pago a ${data.customerEmail}:`, err);
+        throw err;
+    }
 }
 
-/**
- * Send new order notification email to the admin.
- */
 export async function sendOrderNotificationEmail(data: OrderEmailData): Promise<void> {
     const transporter = createTransporter();
+    const recipients = ADMIN_EMAILS.join(', ');
+    console.log(`[email] Enviando notificación admin pedido #${data.orderNumber} a ${recipients}`);
 
-    await transporter.sendMail({
-        from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
-        to: ADMIN_EMAILS.join(', '),
-        subject: `Nuevo pedido #${data.orderNumber} - $${data.total.toLocaleString('es-MX')}`,
-        html: buildAdminNotificationHtml(data),
-    });
+    try {
+        const info = await transporter.sendMail({
+            from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
+            to: recipients,
+            subject: `Nuevo pedido #${data.orderNumber} - $${data.total.toLocaleString('es-MX')}`,
+            html: buildAdminNotificationHtml(data),
+        });
+        console.log(`[email] Notificación admin enviada — messageId: ${info.messageId}`);
+    } catch (err) {
+        console.error(`[email] ERROR enviando notificación admin:`, err);
+        throw err;
+    }
 }
 
 /**

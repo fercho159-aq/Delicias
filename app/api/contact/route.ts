@@ -3,8 +3,8 @@ import { sanitizeString, isValidEmail } from '@/lib/validation';
 import nodemailer from 'nodemailer';
 
 const FROM_NAME = 'Las Delicias del Campo';
-const FROM_EMAIL = process.env.SMTP_USER || 'venta@lasdeliciasdelcampo.com';
-const ADMIN_EMAIL = process.env.SMTP_USER || 'venta@lasdeliciasdelcampo.com';
+const FROM_EMAIL = process.env.SMTP_USER || 'ventas@lasdeliciasdelcampo.com';
+const ADMIN_EMAIL = process.env.SMTP_USER || 'ventas@lasdeliciasdelcampo.com';
 
 function createTransporter() {
     return nodemailer.createTransport({

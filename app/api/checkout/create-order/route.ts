@@ -256,7 +256,6 @@ export async function POST(request: NextRequest) {
             });
         }
 
-        // Send confirmation emails (fire-and-forget, don't block the response)
         const emailData = {
             orderNumber: order.orderNumber,
             customerEmail: body.customer.email,
@@ -282,10 +281,17 @@ export async function POST(request: NextRequest) {
             notes: body.notes || undefined,
         };
 
-        Promise.all([
+        // Enviar emails y esperar a que terminen antes de responder
+        const emailResults = await Promise.allSettled([
             sendOrderConfirmationEmail(emailData),
             sendOrderNotificationEmail(emailData),
-        ]).catch(err => console.error('Error sending order emails:', err));
+        ]);
+
+        for (const result of emailResults) {
+            if (result.status === 'rejected') {
+                console.error('[checkout] Falló envío de email:', result.reason);
+            }
+        }
 
         return NextResponse.json({
             success: true,
