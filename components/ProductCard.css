@@ -65,6 +65,8 @@
     flex-grow: 1;
     justify-content: space-between;
     border-top: 1px solid #f3f4f6;
+    position: relative;
+    z-index: 2;
 }
 
 .product-header {
