@@ -55,8 +55,8 @@ export async function POST(request: NextRequest) {
         } else {
             for (let i = 0; i < body.items.length; i++) {
                 const item = body.items[i];
-                if (!isPositiveNumber(item.price)) {
-                    errors.push(`El precio del producto #${i + 1} debe ser un número positivo.`);
+                if (typeof item.price !== 'number' || item.price < 0 || !isFinite(item.price)) {
+                    errors.push(`El precio del producto #${i + 1} debe ser un número válido.`);
                 }
                 if (!isPositiveInteger(item.quantity)) {
                     errors.push(`La cantidad del producto #${i + 1} debe ser un número entero positivo.`);
@@ -91,11 +91,11 @@ export async function POST(request: NextRequest) {
                 errors.push('El código postal no es válido.');
             }
         }
-        if (!isPositiveNumber(body.subtotal)) {
-            errors.push('El subtotal debe ser un número positivo.');
+        if (typeof body.subtotal !== 'number' || body.subtotal < 0 || !isFinite(body.subtotal)) {
+            errors.push('El subtotal debe ser un número válido.');
         }
-        if (!isPositiveNumber(body.total)) {
-            errors.push('El total debe ser un número positivo.');
+        if (typeof body.total !== 'number' || body.total < 0 || !isFinite(body.total)) {
+            errors.push('El total debe ser un número válido.');
         }
 
         if (errors.length > 0) {
