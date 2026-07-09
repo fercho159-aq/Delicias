@@ -3,6 +3,29 @@ import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { sanitizeString } from '@/lib/validation';
 
+export async function GET() {
+    try {
+        const session = await getSession();
+        if (!session || (session.role !== 'ADMIN' && session.role !== 'SUPER_ADMIN')) {
+            return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+        }
+
+        const products = await prisma.product.findMany({
+            include: {
+                category: true,
+                variants: { orderBy: { position: 'asc' } },
+                images: { orderBy: { position: 'asc' } },
+            },
+            orderBy: { createdAt: 'desc' },
+        });
+
+        return NextResponse.json(products);
+    } catch (error) {
+        console.error('Error al listar productos:', error);
+        return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
+    }
+}
+
 function generateSlug(name: string): string {
     return name
         .toLowerCase()
