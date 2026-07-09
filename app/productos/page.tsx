@@ -27,11 +27,10 @@ async function getProducts(categorySlug?: string) {
                 category: true,
                 images: {
                     orderBy: { position: 'asc' },
-                    take: 1
                 },
                 variants: {
+                    where: { inStock: true },
                     orderBy: { price: 'asc' },
-                    take: 1
                 }
             },
             orderBy: [
