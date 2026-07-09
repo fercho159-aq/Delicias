@@ -1,14 +1,14 @@
 import nodemailer from 'nodemailer';
 
 const FROM_NAME = 'Las Delicias del Campo';
-const FROM_EMAIL = process.env.SMTP_USER || 'venta@lasdeliciasdelcampo.com';
+const FROM_EMAIL = process.env.SMTP_USER || 'ventas@lasdeliciasdelcampo.com';
 
 // Notificaciones de pedidos: múltiples destinatarios administrativos
 const DEFAULT_ADMIN_EMAILS = [
     'ventas@lasdeliciasdelcampo.com',
     'tienda@lasdeliciasdelcampo.com',
     'admin@lasdeliciasdelcampo.com',
-    'venta@lasdeliciasdelcampo.com',
+    'ventas@lasdeliciasdelcampo.com',
     'fernandotrejo159@gmail.com',
 ];
 const ADMIN_EMAILS = process.env.ADMIN_EMAILS
@@ -178,7 +178,7 @@ function buildOrderReceivedHtml(data: OrderEmailData): string {
                 <tr>
                     <td style="background-color: #faf9f7; padding: 24px 32px; text-align: center; border-top: 1px solid #f0ede8;">
                         <p style="margin: 0; font-size: 13px; color: #8b8579;">
-                            ¿Preguntas? Contáctanos por WhatsApp o a venta@lasdeliciasdelcampo.com
+                            ¿Preguntas? Contáctanos por WhatsApp o a ventas@lasdeliciasdelcampo.com
                         </p>
                         <p style="margin: 8px 0 0; font-size: 12px; color: #b5b0a8;">
                             Las Delicias del Campo - Del campo a tu mesa
@@ -263,7 +263,7 @@ function buildPaymentConfirmedHtml(data: OrderEmailData): string {
                 <tr>
                     <td style="background-color: #faf9f7; padding: 24px 32px; text-align: center; border-top: 1px solid #f0ede8;">
                         <p style="margin: 0; font-size: 13px; color: #8b8579;">
-                            ¿Preguntas? Contáctanos por WhatsApp o a venta@lasdeliciasdelcampo.com
+                            ¿Preguntas? Contáctanos por WhatsApp o a ventas@lasdeliciasdelcampo.com
                         </p>
                         <p style="margin: 8px 0 0; font-size: 12px; color: #b5b0a8;">
                             Las Delicias del Campo - Del campo a tu mesa
