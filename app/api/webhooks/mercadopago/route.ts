@@ -258,7 +258,7 @@ export async function POST(request: NextRequest) {
                     console.error(`Webhook: Failed to deduct inventory for order ${externalReference}:`, inventoryError);
                 }
 
-                // Send payment confirmed email
+                // Send payment confirmed email — await to prevent premature termination
                 try {
                     const fullOrder = await prisma.order.findUnique({
                         where: { orderNumber: externalReference },
@@ -270,9 +270,7 @@ export async function POST(request: NextRequest) {
                     });
                     if (fullOrder && fullOrder.user) {
                         const emailData = buildOrderEmailData(fullOrder);
-                        sendPaymentConfirmedEmail(emailData).catch(err =>
-                            console.error(`Webhook: Failed to send payment email for ${externalReference}:`, err)
-                        );
+                        await sendPaymentConfirmedEmail(emailData);
                     }
                 } catch (emailError) {
                     console.error(`Webhook: Failed to send payment email for ${externalReference}:`, emailError);
