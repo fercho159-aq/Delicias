@@ -6,6 +6,7 @@ import Footer from "@/components/layout/Footer";
 import { CartProvider } from "@/lib/CartContext";
 import { UserProvider } from "@/lib/UserContext";
 import CartDrawer from "@/components/CartDrawer";
+import WhatsAppFloat from "@/components/WhatsAppFloat";
 import { getConfig } from "@/lib/config";
 
 const inter = Inter({
@@ -95,6 +96,7 @@ export default async function RootLayout({
             <main>{children}</main>
             <Footer whatsappNumber={whatsappNumber} />
             <CartDrawer />
+            <WhatsAppFloat whatsappNumber={whatsappNumber} />
           </CartProvider>
         </UserProvider>
       </body>

@@ -188,6 +188,16 @@
     color: var(--color-neutral-400);
 }
 
+a.contact-item-link {
+    text-decoration: none;
+    transition: color 0.2s;
+    cursor: pointer;
+}
+
+a.contact-item-link:hover {
+    color: #25d366;
+}
+
 .contact-item svg {
     width: 18px;
     height: 18px;

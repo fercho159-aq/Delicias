@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Plus } from 'lucide-react';
-import ProductBottomSheet, { type BottomSheetProduct } from './ProductBottomSheet';
+import { Minus, Plus, ShoppingCart, Check } from 'lucide-react';
+import { useCart } from '@/lib/CartContext';
 import './ProductCard.css';
 
 interface ProductVariant {
@@ -33,119 +33,156 @@ interface ProductCardProps {
   };
 }
 
-function toNumber(val: number | { toNumber(): number } | null | undefined): number {
+function toNum(val: number | { toNumber(): number } | null | undefined): number {
   if (val == null) return 0;
   if (typeof val === 'object' && 'toNumber' in val) return val.toNumber();
   return Number(val) || 0;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const [sheetOpen, setSheetOpen] = useState(false);
+  const { addItem } = useCart();
+  const [selectedVariantId, setSelectedVariantId] = useState<number>(product.variants[0]?.id || 0);
+  const [quantity, setQuantity] = useState(1);
+  const [isAdded, setIsAdded] = useState(false);
 
+  const activeVariant = product.variants.find(v => v.id === selectedVariantId) || product.variants[0];
   const firstImage = product.images[0];
-  const firstVariant = product.variants[0];
 
-  const price = toNumber(firstVariant?.price);
-  const salePrice = firstVariant?.salePrice ? toNumber(firstVariant.salePrice) : null;
+  const price = toNum(activeVariant?.price);
+  const salePrice = activeVariant?.salePrice ? toNum(activeVariant.salePrice) : null;
+  const hasDiscount = salePrice !== null && salePrice < price;
+  const displayPrice = hasDiscount ? salePrice : price;
 
   const imageUrl = firstImage?.url || '/placeholder-product.png';
   const isLocalImage = imageUrl.startsWith('/');
 
-  const sheetProduct: BottomSheetProduct | null = sheetOpen ? {
-    id: product.id,
-    name: product.name,
-    slug: product.slug,
-    category: product.category,
-    images: product.images,
-    variants: product.variants.map(v => ({
-      id: v.id,
-      price: toNumber(v.price),
-      salePrice: v.salePrice ? toNumber(v.salePrice) : null,
-      weight: v.weight,
-      stock: v.stock ?? 100,
-      inStock: v.inStock ?? true,
-    })),
-  } : null;
-
-  const handleCardClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setSheetOpen(true);
+  const handleAdd = () => {
+    if (!activeVariant?.inStock) return;
+    addItem({
+      variantId: activeVariant.id,
+      productId: product.id,
+      productName: product.name,
+      productSlug: product.slug,
+      variantName: activeVariant.weight ? String(activeVariant.weight) : '',
+      price: displayPrice,
+      quantity,
+      image: firstImage?.url || null,
+      maxStock: activeVariant.stock ?? 100,
+    });
+    setIsAdded(true);
+    setTimeout(() => setIsAdded(false), 1500);
   };
 
   return (
-    <>
-      <div className="product-card">
-        <a href={`/productos/${product.slug}`} className="product-image-wrapper" onClick={handleCardClick}>
-          {isLocalImage ? (
-            <Image
-              src={imageUrl}
-              alt={firstImage?.alt || product.name}
-              fill
-              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-              className="product-image"
-            />
-          ) : (
-            <img
-              src={imageUrl}
-              alt={firstImage?.alt || product.name}
-              className="product-image"
-            />
-          )}
+    <div className="product-card">
+      <Link href={`/productos/${product.slug}`} className="product-image-wrapper">
+        {isLocalImage ? (
+          <Image
+            src={imageUrl}
+            alt={firstImage?.alt || product.name}
+            fill
+            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+            className="product-image"
+          />
+        ) : (
+          <img
+            src={imageUrl}
+            alt={firstImage?.alt || product.name}
+            className="product-image"
+          />
+        )}
 
-          {salePrice && salePrice < price && (
-            <span className="product-badge sale">
-              Oferta
-            </span>
-          )}
-        </a>
+        {hasDiscount && (
+          <span className="product-badge sale">Oferta</span>
+        )}
+      </Link>
 
-        <div className="product-info">
-          <div className="product-header">
-            {product.category && (
-              <Link
-                href={`/productos?categoria=${product.category.slug}`}
-                className="product-category"
-              >
-                {product.category.name}
-              </Link>
-            )}
-            {firstVariant?.weight && (
-              <span className="product-weight">{firstVariant.weight}</span>
-            )}
-          </div>
-
-          <a href={`/productos/${product.slug}`} className="product-title-link" onClick={handleCardClick}>
-            <h3 className="product-name">{product.name}</h3>
-          </a>
-
-          <div className="product-footer">
-            <div className="product-prices">
-              {salePrice && salePrice < price ? (
-                <>
-                  <span className="product-price-original">${price.toFixed(2)}</span>
-                  <span className="product-price">${salePrice.toFixed(2)}</span>
-                </>
-              ) : (
-                <span className="product-price">${price.toFixed(2)}</span>
-              )}
-            </div>
-
-            <button
-              className="product-add-btn"
-              aria-label="Agregar al carrito"
-              onClick={() => setSheetOpen(true)}
+      <div className="product-info">
+        <div className="product-header">
+          {product.category && (
+            <Link
+              href={`/productos?categoria=${product.category.slug}`}
+              className="product-category"
             >
-              <Plus size={20} />
-            </button>
+              {product.category.name}
+            </Link>
+          )}
+        </div>
+
+        <h3 className="product-name">{product.name}</h3>
+
+        {/* Price */}
+        <div className="product-footer">
+          <div className="product-prices">
+            {hasDiscount ? (
+              <>
+                <span className="product-price-original">${price.toFixed(2)}</span>
+                <span className="product-price">${salePrice.toFixed(2)}</span>
+              </>
+            ) : (
+              <span className="product-price">${price.toFixed(2)}</span>
+            )}
           </div>
         </div>
-      </div>
 
-      <ProductBottomSheet
-        product={sheetProduct}
-        onClose={() => setSheetOpen(false)}
-      />
-    </>
+        {/* Variants inline */}
+        {product.variants.length > 1 && (
+          <div className="card-variants">
+            {product.variants.map(v => {
+              const vPrice = toNum(v.salePrice && toNum(v.salePrice) < toNum(v.price) ? v.salePrice : v.price);
+              return (
+                <button
+                  key={v.id}
+                  className={`card-variant-btn ${selectedVariantId === v.id ? 'selected' : ''}`}
+                  onClick={() => {
+                    setSelectedVariantId(v.id);
+                    setQuantity(1);
+                  }}
+                >
+                  <span className="card-variant-weight">{v.weight || 'Std'}</span>
+                  <span className="card-variant-price">${vPrice.toFixed(0)}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Quantity + Add */}
+        <div className="card-actions">
+          <div className="card-qty">
+            <button
+              className="card-qty-btn"
+              onClick={() => setQuantity(q => Math.max(1, q - 1))}
+              disabled={quantity <= 1}
+            >
+              <Minus size={14} />
+            </button>
+            <span className="card-qty-val">{quantity}</span>
+            <button
+              className="card-qty-btn"
+              onClick={() => setQuantity(q => Math.min((activeVariant?.stock ?? 100), q + 1))}
+              disabled={quantity >= (activeVariant?.stock ?? 100)}
+            >
+              <Plus size={14} />
+            </button>
+          </div>
+
+          <button
+            className={`card-add-btn ${isAdded ? 'added' : ''}`}
+            onClick={handleAdd}
+            disabled={!activeVariant?.inStock}
+          >
+            {isAdded ? (
+              <><Check size={16} /> <span>Listo</span></>
+            ) : !activeVariant?.inStock ? (
+              <span>Agotado</span>
+            ) : (
+              <><ShoppingCart size={16} /> <span>Agregar</span></>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 

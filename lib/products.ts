@@ -23,11 +23,10 @@ export async function getFeaturedProducts(limit = 8) {
             category: true,
             images: {
                 orderBy: { position: 'asc' },
-                take: 1
             },
             variants: {
+                where: { inStock: true },
                 orderBy: { price: 'asc' },
-                take: 1
             }
         },
         take: limit
@@ -53,11 +52,10 @@ export async function getLatestProducts(limit = 12) {
             category: true,
             images: {
                 orderBy: { position: 'asc' },
-                take: 1
             },
             variants: {
+                where: { inStock: true },
                 orderBy: { price: 'asc' },
-                take: 1
             }
         },
         orderBy: [{ featured: 'desc' }, { position: 'asc' }, { createdAt: 'desc' }],
