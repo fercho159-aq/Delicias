@@ -113,8 +113,8 @@ const Header = ({ whatsappNumber = '5215648714631' }: { whatsappNumber?: string 
                             </svg>
                         </span>
                         <div className={`nav-dropdown ${isCatalogDropdownOpen ? 'show' : ''}`}>
-                            <a href="/catalogo-compressed.pdf" target="_blank" rel="noopener noreferrer" className="dropdown-link">Catálogo</a>
-                            <a href="/catalogo-botana.pdf" target="_blank" rel="noopener noreferrer" className="dropdown-link">Botana</a>
+                            <a href="/catalogo-botanas.pdf" target="_blank" rel="noopener noreferrer" className="dropdown-link">Catálogo de Botanas</a>
+                            <a href="/paquetes-reventa.pdf" target="_blank" rel="noopener noreferrer" className="dropdown-link">Paquetes de Reventa</a>
                         </div>
                     </div>
                 </nav>
@@ -211,8 +211,8 @@ const Header = ({ whatsappNumber = '5215648714631' }: { whatsappNumber?: string 
                 <Link href="/contacto" className="nav-link-mobile" onClick={() => setIsMobileMenuOpen(false)}>Contacto</Link>
                 <div className="nav-mobile-group">
                     <span className="nav-mobile-title">Catálogo</span>
-                    <a href="/catalogo-compressed.pdf" target="_blank" rel="noopener noreferrer" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Catálogo</a>
-                    <a href="/catalogo-botana.pdf" target="_blank" rel="noopener noreferrer" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Botana</a>
+                    <a href="/catalogo-botanas.pdf" target="_blank" rel="noopener noreferrer" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Catálogo de Botanas</a>
+                    <a href="/paquetes-reventa.pdf" target="_blank" rel="noopener noreferrer" className="nav-link-mobile sub-link" onClick={() => setIsMobileMenuOpen(false)}>Paquetes de Reventa</a>
                 </div>
                 <a
                     href={`https://wa.me/${whatsappNumber}`}
